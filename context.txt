@@ -1,0 +1,219 @@
+Here's a detailed **AI IDE / Cursor / Windsurf context prompt** that explains the entire project, workflow, current objective, and future novelty. It gives the IDE enough context to understand what you're building without locking it into implementation details.
+
+---
+
+# Project Context: Solar Power Forecasting using Physics-Constrained Deep Learning
+
+## Overview
+
+This project aims to reproduce and extend a recent research paper on **Physics-Constrained Neural Networks (PCNN)** for photovoltaic (PV) power forecasting. The primary objective is to faithfully reproduce the original methodology using the same datasets, preprocessing strategy, and evaluation metrics before proposing a novel extension that improves model performance, robustness, and physical consistency.
+
+The project follows a research-oriented workflow rather than a typical machine learning pipeline. Every stage should remain modular, reproducible, and well-documented so that the baseline implementation can later be compared with the proposed enhanced model.
+
+---
+
+# Dataset Information
+
+The project uses two primary datasets.
+
+### 1. NSRDB Dataset (Training & Testing)
+
+The National Solar Radiation Database (NSRDB) provides hourly meteorological observations for Chennai, India from **2016–2020**.
+
+This dataset contains all atmospheric variables required for PV power prediction, including:
+
+* Global Horizontal Irradiance (GHI)
+* Direct Normal Irradiance (DNI)
+* Diffuse Horizontal Irradiance (DHI)
+* Temperature
+* Relative Humidity
+* Pressure
+* Wind Speed
+* Wind Direction
+* Dew Point
+* Surface Albedo
+* Solar Zenith Angle
+* Precipitable Water
+
+This dataset will serve as the primary source for preprocessing, feature engineering, model training, and evaluation.
+
+---
+
+### 2. Renewables.ninja Dataset (External Validation)
+
+Renewables.ninja provides simulated PV power generation using the MERRA-2 weather dataset.
+
+This dataset is **not used for training**.
+
+Instead, it serves as an independent benchmark to validate the generalization capability of the reproduced model, matching the validation strategy used in the original paper.
+
+---
+
+# Current Objective
+
+The current goal is **not to improve the model immediately**.
+
+Instead, the first objective is to reproduce the original research paper as accurately as possible.
+
+This includes:
+
+* Preparing the datasets
+* Performing preprocessing
+* Recreating the physics-based formulation
+* Implementing the original PCNN architecture
+* Training under the same assumptions
+* Reproducing the reported evaluation metrics
+
+The reproduced model becomes the baseline for all future improvements.
+
+---
+
+# Project Workflow
+
+The project is divided into multiple research phases.
+
+## Phase 1 — Dataset Collection ✅
+
+* Collect all yearly NSRDB datasets (2016–2020)
+* Collect Renewables.ninja validation dataset
+* Organize project structure
+
+---
+
+## Phase 2 — Data Preparation ✅
+
+Prepare a clean and reproducible dataset for model development.
+
+This phase includes:
+
+* Merging yearly datasets into one chronological dataset
+* Data cleaning
+* Missing value analysis
+* Duplicate removal
+* Timestamp creation
+* Exploratory Data Analysis (EDA)
+* Feature engineering
+* Data normalization
+* Chronological train/validation/test split
+
+The output of this phase is a model-ready dataset suitable for physics-informed learning.
+
+**Completed:** run `python -m src.data.pipeline`. Artifacts in `data/processed/` (43,848 rows; train/val/test = 28,062 / 7,016 / 8,770; 14 normalized inputs + `target_power`). See `README.md` and `data/processed/phase2_summary.json`.
+
+---
+
+## Phase 3 — Baseline Paper Reproduction
+
+Reproduce the original Physics-Constrained Neural Network exactly as described in the paper.
+
+This includes:
+
+* Physics-based photovoltaic equations
+* Cell temperature estimation
+* PV efficiency modeling
+* Physics-informed loss functions
+* Original neural network architecture
+* Original optimization strategy
+* Original evaluation metrics
+
+The goal is to obtain results comparable to those reported in the paper.
+
+---
+
+## Phase 4 — Model Analysis
+
+After reproducing the baseline:
+
+* Analyze strengths and weaknesses
+* Study prediction errors
+* Identify situations where physics constraints are insufficient
+* Evaluate uncertainty and generalization
+
+This analysis will guide the design of the improved model.
+
+---
+
+## Phase 5 — Novel Research Extension
+
+After successfully reproducing the paper, the project transitions into original research.
+
+The objective is **not to replace the existing PCNN**, but to improve it while preserving physical consistency.
+
+Possible research directions include:
+
+* Improved physics constraints
+* Adaptive physics-aware loss weighting
+* Attention-based feature representation
+* Better temporal feature extraction
+* Hybrid deep learning architectures
+* Improved uncertainty estimation
+* Physics-guided feature interaction
+* Dynamic constraint learning
+* Robust cross-dataset generalization
+
+The exact extension should be selected only after evaluating the limitations of the reproduced baseline.
+
+---
+
+# Expected Research Workflow
+
+```
+Collect Datasets
+        │
+        ▼
+Data Preprocessing
+        │
+        ▼
+Feature Engineering
+        │
+        ▼
+Baseline Paper Reproduction
+        │
+        ▼
+Physics-Constrained Neural Network
+        │
+        ▼
+Training & Evaluation
+        │
+        ▼
+External Validation
+        │
+        ▼
+Analyze Limitations
+        │
+        ▼
+Design Improved Architecture
+        │
+        ▼
+Implement Novel Physics-Aware Model
+        │
+        ▼
+Compare Against Original Paper
+        │
+        ▼
+Research Results & Documentation
+```
+
+---
+
+# Development Guidelines
+
+* Prioritize reproducibility over optimization.
+* Keep preprocessing, physics modeling, neural network architecture, training, and evaluation modular.
+* Do not introduce novel components during baseline reproduction.
+* Every improvement should be implemented only after the original model has been successfully reproduced.
+* Ensure every experiment can be compared fairly against the reproduced baseline using identical datasets and evaluation protocols.
+
+---
+
+# Final Research Goal
+
+The final objective is to deliver a complete research pipeline that:
+
+1. Reproduces the original Physics-Constrained Neural Network.
+2. Validates the reproduced model on independent datasets.
+3. Identifies limitations of the original approach.
+4. Introduces a novel physics-aware deep learning architecture that improves forecasting accuracy, physical consistency, robustness, and uncertainty estimation.
+5. Provides comprehensive experimental comparisons demonstrating the effectiveness of the proposed extension over the original PCNN baseline.
+
+This project should be developed with publication-quality code, documentation, and experimental rigor, ensuring the entire workflow is transparent, reproducible, and extensible for future research.

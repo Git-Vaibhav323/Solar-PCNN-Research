@@ -1,0 +1,188 @@
+{
+  "phase": 2,
+  "status": "complete",
+  "merged_rows": 43848,
+  "model_ready_rows": 43848,
+  "feature_cols_12": [
+    "GHI",
+    "DNI",
+    "DHI",
+    "Temperature",
+    "Relative Humidity",
+    "Pressure",
+    "Surface Albedo",
+    "Wind Speed",
+    "Wind Direction",
+    "Dew Point",
+    "Precipitable Water",
+    "Solar Zenith Angle"
+  ],
+  "model_input_cols": [
+    "GHI",
+    "DNI",
+    "DHI",
+    "Temperature",
+    "Relative Humidity",
+    "Pressure",
+    "Surface Albedo",
+    "Wind Speed",
+    "Wind Direction",
+    "Dew Point",
+    "Precipitable Water",
+    "Solar Zenith Angle",
+    "hour_sin",
+    "hour_cos"
+  ],
+  "qa": {
+    "n_rows": 43848,
+    "n_cols": 28,
+    "time_start": "2016-01-01 00:00:00+05:00",
+    "time_end": "2020-12-31 23:00:00+05:00",
+    "duplicate_timestamps": 0,
+    "null_counts": {
+      "GHI": 0,
+      "DNI": 0,
+      "DHI": 0,
+      "Temperature": 0,
+      "Relative Humidity": 0,
+      "Pressure": 0,
+      "Surface Albedo": 0,
+      "Wind Speed": 0,
+      "Wind Direction": 0,
+      "Dew Point": 0,
+      "Precipitable Water": 0,
+      "Solar Zenith Angle": 0
+    },
+    "negative_counts": {
+      "GHI": 0,
+      "DNI": 0,
+      "DHI": 0,
+      "Relative Humidity": 0,
+      "Pressure": 0,
+      "Surface Albedo": 0,
+      "Wind Speed": 0,
+      "Precipitable Water": 0,
+      "Solar Zenith Angle": 0
+    },
+    "fill_flag_counts": {
+      "0": 38852,
+      "1": 892,
+      "3": 2537,
+      "5": 1567
+    },
+    "hour_gaps": 0,
+    "unique_hours": 43848,
+    "duplicates_removed": 0,
+    "negatives_clipped": {},
+    "nulls_before_interpolate": {
+      "GHI": 0,
+      "DNI": 0,
+      "DHI": 0,
+      "Temperature": 0,
+      "Relative Humidity": 0,
+      "Pressure": 0,
+      "Surface Albedo": 0,
+      "Wind Speed": 0,
+      "Wind Direction": 0,
+      "Dew Point": 0,
+      "Precipitable Water": 0,
+      "Solar Zenith Angle": 0
+    }
+  },
+  "split": {
+    "feature_cols": [
+      "GHI",
+      "DNI",
+      "DHI",
+      "Temperature",
+      "Relative Humidity",
+      "Pressure",
+      "Surface Albedo",
+      "Wind Speed",
+      "Wind Direction",
+      "Dew Point",
+      "Precipitable Water",
+      "Solar Zenith Angle",
+      "hour_sin",
+      "hour_cos"
+    ],
+    "mean": [
+      234.70244458698596,
+      186.9869574513577,
+      104.27856175611147,
+      28.176936782838,
+      74.50887178390707,
+      1007.4529256645998,
+      0.14824531394768725,
+      3.2837930297199067,
+      153.2387570379873,
+      22.890485353859308,
+      4.200901575083743,
+      90.20334830019245,
+      0.00011752109815273532,
+      0.00015315647695677512
+    ],
+    "scale": [
+      316.4555570240289,
+      262.94407748590373,
+      139.02456130722516,
+      3.201670938100183,
+      13.610709464201483,
+      4.009384769764519,
+      0.008462015348331802,
+      1.2797837789701023,
+      90.64191025725319,
+      2.393815377783668,
+      1.5422187633161963,
+      46.406565049129654,
+      0.7070941722991284,
+      0.7071193634970658
+    ],
+    "n_train": 28062,
+    "n_val": 7016,
+    "n_test": 8770,
+    "train_start": "2016-01-01 00:00:00+05:00",
+    "train_end": "2019-03-15 05:00:00+05:00",
+    "val_start": "2019-03-15 06:00:00+05:00",
+    "val_end": "2020-01-01 13:00:00+05:00",
+    "test_start": "2020-01-01 14:00:00+05:00",
+    "test_end": "2020-12-31 23:00:00+05:00"
+  },
+  "eda": {
+    "ghi_dni_corr": 0.8896749746569301,
+    "ghi_dhi_corr": 0.8576618282097096,
+    "ghi_rh_corr": -0.7719231576316047,
+    "ghi_temp_corr": 0.6211836772165648,
+    "target_mean_w": 56.76949682083561,
+    "target_max_w": 253.6677,
+    "figures": {
+      "correlation": "E:\\Solar-PCNN-Research\\data\\figures\\correlation_heatmap.png",
+      "target": "E:\\Solar-PCNN-Research\\data\\figures\\target_distribution.png",
+      "diurnal": [
+        "E:\\Solar-PCNN-Research\\data\\figures\\diurnal_profile.png",
+        "E:\\Solar-PCNN-Research\\data\\figures\\seasonal_monthly.png",
+        "E:\\Solar-PCNN-Research\\data\\figures\\ghi_timeseries.png"
+      ]
+    }
+  },
+  "ninja": {
+    "rows": 8760,
+    "path": "E:\\Solar-PCNN-Research\\data\\processed\\ninja_2019_prepared.csv",
+    "time_start_utc": "2019-01-01 00:00:00+00:00",
+    "time_end_utc": "2019-12-31 23:00:00+00:00"
+  },
+  "artifacts": {
+    "merged": "E:\\Solar-PCNN-Research\\data\\processed\\nsrdb_2016_2020_merged.csv",
+    "model_ready_raw": "E:\\Solar-PCNN-Research\\data\\processed\\nsrdb_model_ready_raw.csv",
+    "train_normalized": "E:\\Solar-PCNN-Research\\data\\processed\\train_normalized.csv",
+    "val_normalized": "E:\\Solar-PCNN-Research\\data\\processed\\val_normalized.csv",
+    "test_normalized": "E:\\Solar-PCNN-Research\\data\\processed\\test_normalized.csv",
+    "scaler": "E:\\Solar-PCNN-Research\\data\\processed\\scaler.joblib"
+  },
+  "notes": {
+    "site_vs_paper": "NSRDB point (13.06, 80.25) vs paper VITCC (12.8438, 80.1533)",
+    "precipitable_water_units": "NSRDB provides cm; paper Table 4 lists mm \u2014 values kept as NSRDB",
+    "pressure_units": "NSRDB mbar \u2248 hPa",
+    "target": "P_bounded from Eqs. (2)\u2013(5); \u03b3=-0.004 as in Eq. (3)"
+  }
+}

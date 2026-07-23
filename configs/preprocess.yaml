@@ -1,0 +1,54 @@
+# Phase 2 — data preparation (paper-aligned defaults)
+
+paths:
+  nsrdb_dir: dataset/31cd05b6920534ff1cfbfa3b0af94507
+  ninja_path: dataset/ninja_pv_13.0837_80.2702_uncorrected.csv
+  processed_dir: data/processed
+  figures_dir: data/figures
+
+site:
+  # NSRDB download point (Chennai / Tamil Nadu)
+  latitude: 13.06
+  longitude: 80.25
+  location_id: 326432
+  timezone_offset_hours: 5
+  # Paper cites VITCC 12.8438 N, 80.1533 E (~25 km SW); documented for reproducibility
+  paper_latitude: 12.8438
+  paper_longitude: 80.1533
+
+years: [2016, 2017, 2018, 2019, 2020]
+
+features:
+  # Table 4 / Eq. (6) — 12 meteorological inputs
+  columns:
+    - GHI
+    - DNI
+    - DHI
+    - Temperature
+    - Relative Humidity
+    - Pressure
+    - Surface Albedo
+    - Wind Speed
+    - Wind Direction
+    - Dew Point
+    - Precipitable Water
+    - Solar Zenith Angle
+
+# Optional temporal encodings (Phase 3 may use input size 14)
+temporal_features: true
+
+split:
+  test_ratio: 0.20          # earliest 80% train window, latest 20% test
+  val_ratio: 0.20           # Table 7 optimal validation split within train window
+  shuffle: false
+
+pv:
+  # Tata Power Solar TS250 (Section 4.1)
+  p_rated_w: 250.0
+  eta_stc: 0.15
+  i_stc: 1000.0
+  t_stc: 25.0
+  # Eq. (3) uses γ = -0.004 /°C (paper); module datasheet lists -0.4383 %/°C
+  gamma: -0.004
+  noct: 47.0
+  capacity_margin: 1.1

@@ -1,0 +1,56 @@
+{
+  "n_rows": 43848,
+  "n_cols": 28,
+  "time_start": "2016-01-01 00:00:00+05:00",
+  "time_end": "2020-12-31 23:00:00+05:00",
+  "duplicate_timestamps": 0,
+  "null_counts": {
+    "GHI": 0,
+    "DNI": 0,
+    "DHI": 0,
+    "Temperature": 0,
+    "Relative Humidity": 0,
+    "Pressure": 0,
+    "Surface Albedo": 0,
+    "Wind Speed": 0,
+    "Wind Direction": 0,
+    "Dew Point": 0,
+    "Precipitable Water": 0,
+    "Solar Zenith Angle": 0
+  },
+  "negative_counts": {
+    "GHI": 0,
+    "DNI": 0,
+    "DHI": 0,
+    "Relative Humidity": 0,
+    "Pressure": 0,
+    "Surface Albedo": 0,
+    "Wind Speed": 0,
+    "Precipitable Water": 0,
+    "Solar Zenith Angle": 0
+  },
+  "fill_flag_counts": {
+    "0": 38852,
+    "1": 892,
+    "3": 2537,
+    "5": 1567
+  },
+  "hour_gaps": 0,
+  "unique_hours": 43848,
+  "duplicates_removed": 0,
+  "negatives_clipped": {},
+  "nulls_before_interpolate": {
+    "GHI": 0,
+    "DNI": 0,
+    "DHI": 0,
+    "Temperature": 0,
+    "Relative Humidity": 0,
+    "Pressure": 0,
+    "Surface Albedo": 0,
+    "Wind Speed": 0,
+    "Wind Direction": 0,
+    "Dew Point": 0,
+    "Precipitable Water": 0,
+    "Solar Zenith Angle": 0
+  }
+}
