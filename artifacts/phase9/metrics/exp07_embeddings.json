@@ -1,0 +1,16 @@
+{
+  "before_multitask_AR": {
+    "H_shape": [
+      6000,
+      32
+    ],
+    "umap": false
+  },
+  "after_multitask_CD": {
+    "H_shape": [
+      6000,
+      32
+    ],
+    "umap": false
+  }
+}

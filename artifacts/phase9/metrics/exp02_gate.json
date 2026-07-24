@@ -1,0 +1,54 @@
+{
+  "AR_PCNN": [
+    {
+      "view": "AR_PCNN_mean_all",
+      "value": 0.9365098476409912
+    },
+    {
+      "view": "AR_PCNN_mean_day",
+      "value": 1.0
+    },
+    {
+      "view": "AR_PCNN_mean_night",
+      "value": 0.8862264752388
+    },
+    {
+      "view": "AR_PCNN_std",
+      "value": 0.08411680161952972
+    },
+    {
+      "view": "AR_PCNN_min",
+      "value": 0.753067672252655
+    },
+    {
+      "view": "AR_PCNN_max",
+      "value": 1.0
+    }
+  ],
+  "CD_Multitask": [
+    {
+      "view": "CD_Multitask_mean_all",
+      "value": 0.9996152520179749
+    },
+    {
+      "view": "CD_Multitask_mean_day",
+      "value": 0.9999879598617554
+    },
+    {
+      "view": "CD_Multitask_mean_night",
+      "value": 0.9993201494216919
+    },
+    {
+      "view": "CD_Multitask_std",
+      "value": 0.0008743430953472853
+    },
+    {
+      "view": "CD_Multitask_min",
+      "value": 0.9943799376487732
+    },
+    {
+      "view": "CD_Multitask_max",
+      "value": 1.0
+    }
+  ]
+}

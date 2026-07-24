@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Training artifacts (regenerate locally)
+artifacts/checkpoints/
+artifacts/metrics/
+
+# Optional: keep processed data in git for reproducibility; ignore caches only
+*.log
+.ipynb_checkpoints/

@@ -1,0 +1,176 @@
+{
+  "physics_pcnn": [
+    {
+      "feature": "GHI",
+      "importance_mae_increase": 53.444175720214844
+    },
+    {
+      "feature": "DNI",
+      "importance_mae_increase": 11.11733798980713
+    },
+    {
+      "feature": "DHI",
+      "importance_mae_increase": 5.816085624694824
+    },
+    {
+      "feature": "Solar Zenith Angle",
+      "importance_mae_increase": 4.322063827514649
+    },
+    {
+      "feature": "Relative Humidity",
+      "importance_mae_increase": 0.5516220092773437
+    },
+    {
+      "feature": "hour_cos",
+      "importance_mae_increase": 0.40242319107055663
+    },
+    {
+      "feature": "hour_sin",
+      "importance_mae_increase": 0.25375022888183596
+    },
+    {
+      "feature": "Dew Point",
+      "importance_mae_increase": 0.10248165130615235
+    },
+    {
+      "feature": "Precipitable Water",
+      "importance_mae_increase": 0.07330465316772461
+    },
+    {
+      "feature": "Pressure",
+      "importance_mae_increase": 0.011582326889038087
+    },
+    {
+      "feature": "Surface Albedo",
+      "importance_mae_increase": 0.009264421463012696
+    },
+    {
+      "feature": "Wind Direction",
+      "importance_mae_increase": -0.0017646312713623046
+    },
+    {
+      "feature": "Wind Speed",
+      "importance_mae_increase": -0.04906983375549316
+    },
+    {
+      "feature": "Temperature",
+      "importance_mae_increase": -0.18449220657348633
+    }
+  ],
+  "physics_ar": [
+    {
+      "feature": "Solar Zenith Angle",
+      "importance_mae_increase": 0.002131985570304096
+    },
+    {
+      "feature": "hour_cos",
+      "importance_mae_increase": 0.0010335246101021768
+    },
+    {
+      "feature": "DNI",
+      "importance_mae_increase": 9.34962008614093e-07
+    },
+    {
+      "feature": "Pressure",
+      "importance_mae_increase": 5.181034794077278e-07
+    },
+    {
+      "feature": "Surface Albedo",
+      "importance_mae_increase": 1.8070859368890525e-07
+    },
+    {
+      "feature": "DHI",
+      "importance_mae_increase": 1.3781682355329395e-07
+    },
+    {
+      "feature": "Dew Point",
+      "importance_mae_increase": 1.1408701539039612e-08
+    },
+    {
+      "feature": "Precipitable Water",
+      "importance_mae_increase": -1.3991812011227012e-07
+    },
+    {
+      "feature": "hour_sin",
+      "importance_mae_increase": -3.775770892389119e-07
+    },
+    {
+      "feature": "Wind Direction",
+      "importance_mae_increase": -5.084832082502544e-07
+    },
+    {
+      "feature": "Wind Speed",
+      "importance_mae_increase": -5.122303264215588e-07
+    },
+    {
+      "feature": "Temperature",
+      "importance_mae_increase": -1.7319878679700196e-06
+    },
+    {
+      "feature": "Relative Humidity",
+      "importance_mae_increase": -2.1792264305986462e-06
+    },
+    {
+      "feature": "GHI",
+      "importance_mae_increase": -4.731144872494042e-06
+    }
+  ],
+  "external_cd": [
+    {
+      "feature": "GHI",
+      "importance_mae_increase": 0.48448867797851564
+    },
+    {
+      "feature": "DNI",
+      "importance_mae_increase": 0.30695953369140627
+    },
+    {
+      "feature": "Solar Zenith Angle",
+      "importance_mae_increase": 0.299713134765625
+    },
+    {
+      "feature": "DHI",
+      "importance_mae_increase": 0.20370101928710938
+    },
+    {
+      "feature": "hour_cos",
+      "importance_mae_increase": 0.18014984130859374
+    },
+    {
+      "feature": "Relative Humidity",
+      "importance_mae_increase": 0.12029571533203125
+    },
+    {
+      "feature": "hour_sin",
+      "importance_mae_increase": 0.018686676025390626
+    },
+    {
+      "feature": "Pressure",
+      "importance_mae_increase": 0.00994110107421875
+    },
+    {
+      "feature": "Surface Albedo",
+      "importance_mae_increase": 0.0091888427734375
+    },
+    {
+      "feature": "Wind Direction",
+      "importance_mae_increase": 0.000193023681640625
+    },
+    {
+      "feature": "Precipitable Water",
+      "importance_mae_increase": -0.000308990478515625
+    },
+    {
+      "feature": "Temperature",
+      "importance_mae_increase": -0.012267303466796876
+    },
+    {
+      "feature": "Dew Point",
+      "importance_mae_increase": -0.02224884033203125
+    },
+    {
+      "feature": "Wind Speed",
+      "importance_mae_increase": -0.02524871826171875
+    }
+  ]
+}

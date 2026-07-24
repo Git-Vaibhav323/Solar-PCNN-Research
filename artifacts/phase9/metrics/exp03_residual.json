@@ -1,0 +1,35 @@
+{
+  "stats": [
+    {
+      "model": "AR_PCNN",
+      "mean_abs_residual_W": 7.464097870979458e-05,
+      "std_residual_W": 1.1502242159622256e-05,
+      "max_abs_residual_W": 0.0001310140360146761,
+      "p95_abs_residual_W": 7.62591153034009e-05
+    },
+    {
+      "model": "CD_Multitask",
+      "mean_abs_residual_W": 0.00020633573876693845,
+      "std_residual_W": 0.0002946795430034399,
+      "max_abs_residual_W": 0.0011707855155691504,
+      "p95_abs_residual_W": 0.0008058183011598885
+    }
+  ],
+  "season": [
+    {
+      "season": "winter",
+      "mean_abs_residual": 7.386484503513202e-05,
+      "n": 3634
+    },
+    {
+      "season": "other",
+      "mean_abs_residual": 7.578879740322009e-05,
+      "n": 2952
+    },
+    {
+      "season": "summer",
+      "mean_abs_residual": 7.43809505365789e-05,
+      "n": 2184
+    }
+  ]
+}

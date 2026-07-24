@@ -1,0 +1,13 @@
+model,view,value
+AR_PCNN,AR_PCNN_mean_all,0.9365098476409912
+AR_PCNN,AR_PCNN_mean_day,1.0
+AR_PCNN,AR_PCNN_mean_night,0.8862264752388
+AR_PCNN,AR_PCNN_std,0.08411680161952972
+AR_PCNN,AR_PCNN_min,0.753067672252655
+AR_PCNN,AR_PCNN_max,1.0
+CD_Multitask,CD_Multitask_mean_all,0.9996152520179749
+CD_Multitask,CD_Multitask_mean_day,0.9999879598617554
+CD_Multitask,CD_Multitask_mean_night,0.9993201494216919
+CD_Multitask,CD_Multitask_std,0.0008743430953472853
+CD_Multitask,CD_Multitask_min,0.9943799376487732
+CD_Multitask,CD_Multitask_max,1.0

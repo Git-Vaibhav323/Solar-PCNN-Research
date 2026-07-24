@@ -102,7 +102,7 @@ The output of this phase is a model-ready dataset suitable for physics-informed 
 
 ---
 
-## Phase 3 — Baseline Paper Reproduction
+## Phase 3 — Baseline Paper Reproduction (in progress — PyTorch)
 
 Reproduce the original Physics-Constrained Neural Network exactly as described in the paper.
 
@@ -118,9 +118,22 @@ This includes:
 
 The goal is to obtain results comparable to those reported in the paper.
 
+**Implementation ready:** dual-branch PCNN in `src/models/pcnn.py`, physics loss in `src/models/loss.py`, trainer in `src/training/train.py`.
+
+Run from repo root (use `.venv` with CUDA torch):
+```
+python -m src.training.train
+python -m src.training.evaluate --split test
+python -m src.training.case1_ninja
+python -m src.training.uncertainty --split test --n-samples 50
+```
+
+**NSRDB baseline (done):** test R²≈0.9976, MAE≈2.29 W (single panel) — high R² expected because target is physics-derived.
+**Case 1 / UQ:** see `artifacts/metrics/case1_ninja_metrics.json` and `uncertainty_test_metrics.json`.
+
 ---
 
-## Phase 4 — Model Analysis
+## Phase 4 — Model Analysis ✅
 
 After reproducing the baseline:
 
@@ -131,27 +144,34 @@ After reproducing the baseline:
 
 This analysis will guide the design of the improved model.
 
+**Completed:** run `python -m src.analysis.phase4_analyze`. See `phase4_limitations.md`, `artifacts/metrics/phase4_report.json`, and `summary.md`.
+
 ---
 
-## Phase 5 — Novel Research Extension
+## Phase 5 — Novel Research Extension ✅ (AR-PCNN)
 
-After successfully reproducing the paper, the project transitions into original research.
+Implemented as a **separate** model (baseline frozen):
 
-The objective is **not to replace the existing PCNN**, but to improve it while preserving physical consistency.
+* Adaptive Residual PCNN: `y = α * P_physics + r`
+* Residual sparsity regularizer
+* MC Dropout retained + conformal std-scale calibration
+* Fair comparison: `python -m src.training.compare_phase5`
 
-Possible research directions include:
+See `phase5_comparison.md` and `summary.md`.
 
-* Improved physics constraints
-* Adaptive physics-aware loss weighting
-* Attention-based feature representation
-* Better temporal feature extraction
-* Hybrid deep learning architectures
-* Improved uncertainty estimation
-* Physics-guided feature interaction
-* Dynamic constraint learning
-* Robust cross-dataset generalization
+---
 
-The exact extension should be selected only after evaluating the limitations of the reproduced baseline.
+## Phase 6 — Cross-Domain Learning ✅
+
+Training-only extension of AR-PCNN (architecture physics path unchanged):
+
+* Strategy A multi-task shared encoder + external ninja head
+* Strategy B frozen-encoder fine-tune (negative result under our data budget)
+* Evaluation: `python -m src.training.compare_phase6`
+
+**Result:** multi-task raises ninja full-2019 R² from ~0.5 to ~0.86 while keeping NSRDB physics fidelity.
+
+See `phase6_comparison.md` and `summary.md`.
 
 ---
 

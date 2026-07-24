@@ -1,0 +1,69 @@
+# Phase 5 — Adaptive Residual PCNN (AR-PCNN)
+# Baseline Phase-3 config remains configs/train_pcnn.yaml (frozen).
+
+paths:
+  processed_dir: data/processed
+  checkpoint_dir: artifacts/checkpoints
+  metrics_dir: artifacts/metrics
+  figures_dir: data/figures
+  scaler_path: data/processed/scaler.joblib
+
+features:
+  - GHI
+  - DNI
+  - DHI
+  - Temperature
+  - Relative Humidity
+  - Pressure
+  - Surface Albedo
+  - Wind Speed
+  - Wind Direction
+  - Dew Point
+  - Precipitable Water
+  - Solar Zenith Angle
+  - hour_sin
+  - hour_cos
+
+target: target_power
+physics_col: P_theoretical
+
+pv:
+  p_rated_w: 250.0
+  capacity_margin: 1.1
+  i_stc: 1000.0
+  t_stc: 25.0
+  gamma: -0.004
+
+model:
+  name: ar_pcnn
+  input_dim: 14
+  hidden_dims: [128, 64, 32]
+  dropout: 0.2
+
+loss:
+  lambda_capacity: 0.5
+  lambda_nonneg: 0.5
+  # Encourage small residuals so the net does not re-learn full physics in r
+  lambda_residual: 0.0001
+
+train:
+  batch_size: 64
+  max_epochs: 100
+  learning_rate: 0.001
+  weight_decay: 0.0
+  adam_betas: [0.9, 0.999]
+  adam_eps: 1.0e-8
+  early_stopping_patience: 15
+  lr_scheduler_factor: 0.5
+  lr_scheduler_patience: 7
+  min_lr: 1.0e-6
+  num_workers: 0
+  seed: 42
+  device: auto
+  target_unit: W
+  checkpoint_name: ar_pcnn_best.pt
+
+uncertainty:
+  n_mc_samples: 50
+  target_picp: 0.95
+  z: 1.96

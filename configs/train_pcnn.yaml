@@ -1,0 +1,63 @@
+# Phase 3 — baseline PCNN training (paper Tables 6–7)
+
+paths:
+  processed_dir: data/processed
+  checkpoint_dir: artifacts/checkpoints
+  metrics_dir: artifacts/metrics
+  figures_dir: data/figures
+  scaler_path: data/processed/scaler.joblib
+
+features:
+  - GHI
+  - DNI
+  - DHI
+  - Temperature
+  - Relative Humidity
+  - Pressure
+  - Surface Albedo
+  - Wind Speed
+  - Wind Direction
+  - Dew Point
+  - Precipitable Water
+  - Solar Zenith Angle
+  - hour_sin
+  - hour_cos
+
+target: target_power
+physics_col: P_theoretical
+
+pv:
+  p_rated_w: 250.0
+  capacity_margin: 1.1
+  i_stc: 1000.0
+  t_stc: 25.0
+  gamma: -0.004
+
+model:
+  input_dim: 14
+  hidden_dims: [128, 64, 32]
+  fuse_dim: 16
+  dropout: 0.2
+  # Scale physics prior before concat: P_theoretical / p_rated
+  physics_scale: rated
+
+loss:
+  lambda_capacity: 0.5
+  lambda_nonneg: 0.5
+
+train:
+  batch_size: 64
+  max_epochs: 100
+  learning_rate: 0.001
+  weight_decay: 0.0
+  adam_betas: [0.9, 0.999]
+  adam_eps: 1.0e-8
+  early_stopping_patience: 15
+  lr_scheduler_factor: 0.5
+  lr_scheduler_patience: 7
+  min_lr: 1.0e-6
+  num_workers: 0
+  seed: 42
+  device: auto   # auto | cpu | cuda
+  # target units for loss/metrics: "W" (panel watts) or "kW"
+  target_unit: W
