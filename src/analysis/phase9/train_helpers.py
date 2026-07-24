@@ -60,6 +60,16 @@ def run_multitask_training(
     capacity_margin = float(cfg["pv"]["capacity_margin"])
     model = build_model(cfg, device, "multitask")
 
+    # External head is randomly initialized (physics warm-start only).
+    # If the final bias is largely negative, outputs stay < 0, get clamped to 0,
+    # and gradients die — Ninja R² collapses to the "always-zero" baseline (~-0.51).
+    with torch.no_grad():
+        last = model.external_head[-1]
+        if isinstance(last, torch.nn.Linear) and last.bias is not None:
+            if float(last.bias.item()) < 0.05:
+                last.bias.fill_(0.1)
+                print("Adjusted external_head final bias to 0.1 (avoid zero-clamp trap)")
+
     criterion = CrossDomainLoss(
         p_rated=p_rated,
         capacity_margin=capacity_margin,

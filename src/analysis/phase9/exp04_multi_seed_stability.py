@@ -25,17 +25,18 @@ from .train_helpers import run_multitask_training
 SEEDS = [42, 123, 456, 999, 2026]
 
 
-def run(skip_train: bool = False) -> pd.DataFrame:
+def run(skip_train: bool = False, seeds: list[int] | None = None) -> pd.DataFrame:
     device = resolve_device("auto")
     rows = []
+    seeds = list(seeds) if seeds is not None else list(SEEDS)
 
-    for seed in SEEDS:
+    for seed in seeds:
         tag = f"seed{seed}"
         cfg = phase9_cfg(seed=seed, tag=tag)
         ckpt = CKPT_DIR / cfg["train"]["checkpoint_name_multitask"]
 
         if not skip_train and not ckpt.exists():
-            print(f"[Exp4] Training seed={seed} ...")
+            print(f"[Exp4] Training seed={seed} ...", flush=True)
             run_multitask_training(seed=seed, tag=tag)
 
         if not ckpt.exists():
@@ -43,25 +44,41 @@ def run(skip_train: bool = False) -> pd.DataFrame:
                 ckpt = BASE_CD
                 print(f"  Using frozen Phase-6 checkpoint for seed=42")
             else:
+                print(f"  WARNING: missing checkpoint for seed={seed}")
                 continue
 
+        print(f"[Exp4] Evaluating seed={seed} ...", flush=True)
         model, _ = load_cd_model(cfg, ckpt, device)
         phys, _ = eval_physics_split(model, cfg, "test", device)
         ninja, _ = eval_ninja_full(model, cfg, device, use_external_head=True)
         uq = mc_uq_physics(model, cfg, device, n_mc=30)
-        rows.append(
-            {
-                "seed": seed,
-                "nsrdb_r2": phys["r2"],
-                "nsrdb_mae": phys["mae"],
-                "nsrdb_rmse": phys["rmse"],
-                "ninja_r2": ninja["r2"],
-                "ninja_mae": ninja["mae"],
-                "picp": uq["picp"],
-            }
+        row = {
+            "seed": seed,
+            "nsrdb_r2": phys["r2"],
+            "nsrdb_mae": phys["mae"],
+            "nsrdb_rmse": phys["rmse"],
+            "ninja_r2": ninja["r2"],
+            "ninja_mae": ninja["mae"],
+            "picp": uq["picp"],
+        }
+        print(
+            f"  seed={seed} ninja_R2={row['ninja_r2']:.4f} nsrdb_MAE={row['nsrdb_mae']:.6g} picp={row['picp']:.3f}",
+            flush=True,
         )
+        rows.append(row)
 
-    df = pd.DataFrame(rows)
+    # If only a subset was requested, merge with existing full runs CSV
+    df_new = pd.DataFrame(rows)
+    runs_path = CKPT_DIR.parent / "csv" / "exp04_multi_seed_runs.csv"
+    if runs_path.exists() and seeds != SEEDS:
+        df_old = pd.read_csv(runs_path)
+        for _, r in df_new.iterrows():
+            df_old = df_old[df_old["seed"] != int(r["seed"])]
+        df = pd.concat([df_old, df_new], ignore_index=True)
+        df = df.sort_values("seed").reset_index(drop=True)
+    else:
+        df = df_new.sort_values("seed").reset_index(drop=True) if len(df_new) else df_new
+
     save_csv(df, "exp04_multi_seed_runs.csv")
 
     if len(df) >= 2:
@@ -98,7 +115,7 @@ def run(skip_train: bool = False) -> pd.DataFrame:
 
         text = f"""## Multi-seed stability
 
-Seeds: {SEEDS}
+Seeds evaluated: {sorted(df['seed'].tolist())}
 
 | Metric | mean ± std |
 |--------|------------|
@@ -107,8 +124,19 @@ Seeds: {SEEDS}
 | Ninja R² | {summary['ninja_r2_mean_std'][0]:.4f} ± {summary['ninja_r2_mean_std'][1]:.4f} |
 | PICP | {summary['picp_mean_std'][0]:.3f} ± {summary['picp_mean_std'][1]:.3f} |
 
-Low cross-seed variance indicates reproducible multitask training under the frozen architecture.
+Inspect per-seed rows in `exp04_multi_seed_runs.csv` before trusting mean±std (one failed seed can inflate std).
 """
         plain_summary(REPORT_DIR / "exp04_multi_seed_stability.md", text)
 
     return df
+
+
+if __name__ == "__main__":
+    import argparse
+
+    p = argparse.ArgumentParser(description="Phase 9 Exp4 multi-seed (optionally one seed)")
+    p.add_argument("--skip-train", action="store_true")
+    p.add_argument("--seeds", type=str, default="", help="Comma-separated seeds, e.g. 456")
+    args = p.parse_args()
+    seed_list = [int(x) for x in args.seeds.split(",") if x.strip()] or None
+    run(skip_train=args.skip_train, seeds=seed_list)

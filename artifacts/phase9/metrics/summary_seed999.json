@@ -1,0 +1,54 @@
+{
+  "tag": "seed999",
+  "lambda_external": 1.0,
+  "seed": 999,
+  "elapsed_sec": 137.13197898864746,
+  "best_epoch": 1,
+  "best_checkpoint": "E:\\Solar-PCNN-Research\\artifacts\\phase9\\checkpoints\\multitask_seed999_best.pt",
+  "train_loss_final": 0.551083793667057,
+  "val_loss_final": 0.7038098177787933,
+  "val": {
+    "mae": 0.000158445654267027,
+    "rmse": 0.00035736178882873144,
+    "r2": 0.9999999999778024,
+    "mape": 0.0031180051971278814,
+    "negative_fraction": 0.0,
+    "capacity_violation_fraction": 0.0,
+    "feasible_fraction": 1.0,
+    "physics_consistency_score": 1.0,
+    "loss": 0.7038098177787933,
+    "physics_loss": 1.2975196809509011e-07,
+    "external_mse": 0.7038096919994462,
+    "mean_alpha": 0.9916571974754333,
+    "mean_abs_residual": 0.0001406850351486355,
+    "ninja_in_split": {
+      "ext_mae": 0.4529345262782329,
+      "ext_rmse": 0.8374661477063443,
+      "ext_r2": 0.8378727486946698,
+      "ext_mape": 84.69826540344218,
+      "ext_negative_fraction": 0.0,
+      "ext_capacity_violation_fraction": 0.0,
+      "ext_feasible_fraction": 1.0,
+      "ext_physics_consistency_score": 1.0,
+      "n": 7007
+    }
+  },
+  "test": {
+    "mae": 0.00016745163057492717,
+    "rmse": 0.000467846792548364,
+    "r2": 0.9999999999621367,
+    "mape": 0.0033225104292205158,
+    "negative_fraction": 0.0,
+    "capacity_violation_fraction": 0.0,
+    "feasible_fraction": 1.0,
+    "physics_consistency_score": 1.0,
+    "loss": 2.1734627448597373e-07,
+    "physics_loss": 2.1734627448597373e-07,
+    "external_mse": 0.0,
+    "mean_alpha": 0.9919596910476685,
+    "mean_abs_residual": 0.00014113186625763774,
+    "ninja_in_split": {
+      "n": 0
+    }
+  }
+}

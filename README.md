@@ -413,6 +413,8 @@ Read these before claiming “state-of-the-art accuracy” on NSRDB.
 | [`phase7_validation.md`](phase7_validation.md) | Ablation + integrity + stats |
 | [`phase8_audit.md`](phase8_audit.md) | Independent metric verification |
 | [`phase9_report.md`](phase9_report.md) | Evidence-audited Phase 9 claims |
+| [`interpret.md`](interpret.md) | **Commands + how to read final numbers** |
+| [`README.md`](README.md) | Architecture + figure gallery |
 
 ---
 
