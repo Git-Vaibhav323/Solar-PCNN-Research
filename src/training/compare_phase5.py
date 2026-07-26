@@ -152,7 +152,7 @@ Standard MAPE is susceptible to extreme inflation during low-irradiance periods 
 
 Calibration scale on val → test: **{fmt(g(comparison,'uncertainty_test','ar_pcnn_calibrated','scale'), 3)}**
 """
-    out_md = ROOT / "phase5_comparison.md"
+    out_md = ROOT / "Documentation" / "phase5_comparison.md"
     out_md.write_text(md, encoding="utf-8")
     try:
         print(md)

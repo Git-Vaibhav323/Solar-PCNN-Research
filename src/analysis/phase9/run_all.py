@@ -86,7 +86,7 @@ def main() -> None:
         print("\n[9/9] Noise robustness ...")
         exp09_noise_robustness.run()
 
-    print("\n[Report] Assembling phase9_report.md ...")
+    print("\n[Report] Assembling Documentation/phase9_report.md ...")
     path = report.run()
     elapsed = time.time() - t0
     print(f"\nDone in {elapsed / 60:.1f} min.")

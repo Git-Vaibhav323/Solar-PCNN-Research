@@ -4,6 +4,8 @@
 
 This repository reproduces a Physics-Constrained Neural Network (PCNN) for solar power forecasting, then extends it with an **Adaptive Residual PCNN (AR-PCNN)** and **cross-domain multi-task learning** so the model works better when weather data and power labels come from different sources.
 
+> **Docs:** all phase reports, `summary.md`, `interpret.md`, and `requirements.txt` live in [`Documentation/`](Documentation/README.md). Root `requirements.txt` installs from that list.
+
 > **One-line result:** Multi-task AR-PCNN lifts Renewables.ninja R² from ~0.5 → **~0.86** (cleaner val-holdout ~**0.81**). NSRDB physics-target scores stay near-perfect as a **consistency check** (labels are physics-derived — not a forecasting claim). Phase 8 audit: **178/178** metric checks pass.
 
 ---
@@ -127,7 +129,7 @@ Architecture is **frozen** from Phase 5/6 onward. Later phases only validate and
 | **6** | Multi-task + failed fine-tune | **Ninja R²≈0.86**; fine-tune failed (useful negative) |
 | **7** | Ablation A–E, interpretability, stats, publication figures | Each piece isolated |
 | **8** | Independent metric audit from saved arrays | **178/178 PASS** |
-| **9** | Extra analyses (gate, residual, noise, regimes, …) | Evidence pack; see `phase9_report.md` |
+| **9** | Extra analyses (gate, residual, noise, regimes, …) | Evidence pack; see [`Documentation/phase9_report.md`](Documentation/phase9_report.md) |
 
 ---
 
@@ -194,7 +196,7 @@ Architecture is **frozen** from Phase 5/6 onward. Later phases only validate and
 | Mean α | — | 0.937 |
 | PICP (calibrated for AR) | 0.999 raw | **0.944** |
 
-Full table: [`phase5_comparison.md`](phase5_comparison.md)
+Full table: [`Documentation/phase5_comparison.md`](Documentation/phase5_comparison.md)
 
 ### 5.3 Phase 6 — Cross-domain
 
@@ -204,7 +206,7 @@ Full table: [`phase5_comparison.md`](phase5_comparison.md)
 | Ninja R² (val holdout) | — | — | **0.81** | −0.51 |
 | NSRDB R² | 0.998 | ≈1.0 | ≈1.0 | ≈1.0 |
 
-Full table: [`phase6_comparison.md`](phase6_comparison.md)
+Full table: [`Documentation/phase6_comparison.md`](Documentation/phase6_comparison.md)
 
 ### 5.4 Ablation takeaway (Phase 7)
 
@@ -214,14 +216,14 @@ Trustworthy intervals   →  conformal UQ
 Cross-domain Ninja gain →  multi-task external head
 ```
 
-Details: [`phase7_validation.md`](phase7_validation.md)
+Details: [`Documentation/phase7_validation.md`](Documentation/phase7_validation.md)
 
 ### 5.5 Audit (Phase 8)
 
 Independent recalculation of MAE / RMSE / R² / MAPE / sMAPE / nRMSE / PICP / MPIW from saved prediction arrays — **no hard-coded table numbers**.
 
 - Result: **178/178 PASS**, publication readiness **READY with caveats**
-- Report: [`phase8_audit.md`](phase8_audit.md)
+- Report: [`Documentation/phase8_audit.md`](Documentation/phase8_audit.md)
 
 ---
 
@@ -278,6 +280,16 @@ Independent recalculation of MAE / RMSE / R² / MAPE / sMAPE / nRMSE / PICP / MP
 
 ```text
 Solar-PCNN-Research/
+├── README.md                 # This file — architecture, how to run, figure gallery
+├── requirements.txt          # Thin wrapper → Documentation/requirements.txt
+├── Documentation/            # All phase reports, summary, interpret guide, deps, paper PDF
+│   ├── README.md             # Doc index
+│   ├── summary.md
+│   ├── interpret.md
+│   ├── phase4_limitations.md … phase9_report.md
+│   ├── requirements.txt      # Canonical dependency list
+│   ├── Solar.pdf
+│   └── archive/              # Obsolete scratch (e.g. old IDE context prompt)
 ├── configs/                  # YAML train / preprocess configs
 ├── data/
 │   ├── processed/            # Splits, scaler, ninja CSV
@@ -286,19 +298,11 @@ Solar-PCNN-Research/
 │   ├── checkpoints/          # *.pt models (frozen Phase 3–6)
 │   ├── metrics/              # JSON / NPZ prediction arrays
 │   └── phase9/               # Phase 9-only outputs (no overwrite of 3–8)
-├── src/
-│   ├── data/                 # Pipeline
-│   ├── models/               # PCNN, AR-PCNN, CD, losses, metrics
-│   ├── training/             # Train / eval / UQ / Case 1
-│   └── analysis/             # Phase 4, 7, 8, 9
-├── phase4_limitations.md
-├── phase5_comparison.md
-├── phase6_comparison.md
-├── phase7_validation.md
-├── phase8_audit.md
-├── phase9_report.md          # Evidence-audited Phase 9 claims
-├── summary.md                # Living plain-language summary
-└── requirements.txt
+└── src/
+    ├── data/                 # Pipeline
+    ├── models/               # PCNN, AR-PCNN, CD, losses, metrics
+    ├── training/             # Train / eval / UQ / Case 1
+    └── analysis/             # Phase 4, 7, 8, 9
 ```
 
 ### Core code map
@@ -399,7 +403,7 @@ Integrity (Phase 7/8): no timestamp overlap; 2020 test has **zero** ninja labels
 
 Read these before claiming accuracy wins.
 
-1. **NSRDB labels ≈ analytical physics** → near-unity R² for residual models is a consistency check, not a forecasting claim (`phase4_limitations.md`).
+1. **NSRDB labels ≈ analytical physics** → near-unity R² for residual models is a consistency check, not a forecasting claim ([`Documentation/phase4_limitations.md`](Documentation/phase4_limitations.md)).
 2. Prefer **Ninja val-holdout R² ≈ 0.81** over full-2019 **0.86** (early-2019 train overlap).
 3. Report NSRDB as **R² ≈ 1.0** + MAE (W), not `R² = 1.0000`.
 4. **λ-sensitivity:** full grid λ ∈ {0, 0.05, 0.1, 0.25, 0.5, 1.0} is in `artifacts/phase9/csv/exp01_lambda_sensitivity.csv` (Ninja peaks near λ≈0.25; λ=0 leaves the external head untrained → Ninja R²≈−0.51).
@@ -414,16 +418,19 @@ Read these before claiming accuracy wins.
 
 ## 11. Documentation index
 
+All reports live under [`Documentation/`](Documentation/README.md).
+
 | Doc | Contents |
 |-----|----------|
-| [`summary.md`](summary.md) | Living plain-language project status |
-| [`phase4_limitations.md`](phase4_limitations.md) | Why we redesigned |
-| [`phase5_comparison.md`](phase5_comparison.md) | PCNN vs AR-PCNN |
-| [`phase6_comparison.md`](phase6_comparison.md) | Cross-domain results |
-| [`phase7_validation.md`](phase7_validation.md) | Ablation + integrity + stats |
-| [`phase8_audit.md`](phase8_audit.md) | Independent metric verification |
-| [`phase9_report.md`](phase9_report.md) | Evidence-audited Phase 9 claims |
-| [`interpret.md`](interpret.md) | **Commands + how to read final numbers** |
+| [`Documentation/summary.md`](Documentation/summary.md) | Living plain-language project status |
+| [`Documentation/phase4_limitations.md`](Documentation/phase4_limitations.md) | Why we redesigned |
+| [`Documentation/phase5_comparison.md`](Documentation/phase5_comparison.md) | PCNN vs AR-PCNN |
+| [`Documentation/phase6_comparison.md`](Documentation/phase6_comparison.md) | Cross-domain results |
+| [`Documentation/phase7_validation.md`](Documentation/phase7_validation.md) | Ablation + integrity + stats |
+| [`Documentation/phase8_audit.md`](Documentation/phase8_audit.md) | Independent metric verification |
+| [`Documentation/phase9_report.md`](Documentation/phase9_report.md) | Evidence-audited Phase 9 claims |
+| [`Documentation/interpret.md`](Documentation/interpret.md) | **Commands + how to read final numbers** |
+| [`Documentation/requirements.txt`](Documentation/requirements.txt) | Python dependencies |
 | [`README.md`](README.md) | Architecture + figure gallery |
 
 ---

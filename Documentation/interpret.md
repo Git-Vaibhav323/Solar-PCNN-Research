@@ -26,9 +26,9 @@ dir data\figures\phase9
 ### 1. Phase 5 / 6 comparison tables (open as text)
 
 ```powershell
-type phase5_comparison.md
-type phase6_comparison.md
-type phase7_validation.md
+type Documentation\phase5_comparison.md
+type Documentation\phase6_comparison.md
+type Documentation\phase7_validation.md
 ```
 
 ### 2. Re-run scientific audit (Phase 8)
@@ -136,7 +136,7 @@ python -c "
 import json
 from pathlib import Path
 print('=== PHASE 5 ===')
-print(Path('phase5_comparison.md').read_text(encoding='utf-8')[:800])
+print(Path('Documentation/phase5_comparison.md').read_text(encoding='utf-8')[:800])
 print('\n=== PHASE 6 NINJA ===')
 d=json.load(open('artifacts/metrics/ar_pcnn_cd_multitask_eval.json',encoding='utf-8'))
 print('full2019 R2', d['ninja_full_2019_external_head']['r2'])
@@ -256,13 +256,15 @@ Tick these yourself:
 
 ## Files to read in order
 
-1. `summary.md` — big picture  
-2. `phase5_comparison.md` / `phase6_comparison.md` — main tables  
-3. `phase7_validation.md` — ablation  
-4. `phase8_audit.md` — “are numbers real?”  
-5. `phase9_report.md` — extra analyses (claim-audited)  
+## Files to read in order
+
+1. `Documentation/summary.md` — big picture  
+2. `Documentation/phase5_comparison.md` / `phase6_comparison.md` — main tables  
+3. `Documentation/phase7_validation.md` — ablation  
+4. `Documentation/phase8_audit.md` — “are numbers real?”  
+5. `Documentation/phase9_report.md` — extra analyses (claim-audited)  
 6. `README.md` — architecture + figure gallery  
-7. **This file** — commands + interpretation  
+7. **`Documentation/interpret.md`** — commands + interpretation  
 
 ---
 

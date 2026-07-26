@@ -2,7 +2,7 @@
 Phase 8 — Scientific audit of Phase 5–7 results.
 
 Independent metric recalculation from saved prediction arrays.
-Does NOT modify models. Writes phase8_audit.md + artifacts/metrics/phase8_audit.json.
+Does NOT modify models. Writes Documentation/phase8_audit.md + artifacts/metrics/phase8_audit.json.
 """
 
 from __future__ import annotations
@@ -584,7 +584,7 @@ def audit_markdown_tables(recalculated: dict) -> list[dict]:
     checks.append(check("phase6_comparison_json_exists", bool(p6j), "phase6_comparison.json"))
 
     # Phase 5 markdown: only compare cells when magnitude matches the intended table
-    p5_text = (ROOT / "phase5_comparison.md").read_text(encoding="utf-8") if (ROOT / "phase5_comparison.md").exists() else ""
+    p5_text = (ROOT / "Documentation" / "phase5_comparison.md").read_text(encoding="utf-8") if (ROOT / "Documentation" / "phase5_comparison.md").exists() else ""
     if "phase3_pcnn_nsrdb_test" in recalculated and "0.9976" in p5_text:
         checks.append(
             check(
@@ -613,7 +613,7 @@ def audit_markdown_tables(recalculated: dict) -> list[dict]:
         )
 
     # Explicit NSRDB row checks from phase5 md using section-aware parse
-    if (ROOT / "phase5_comparison.md").exists():
+    if (ROOT / "Documentation" / "phase5_comparison.md").exists():
         lines = p5_text.splitlines()
         section = None
         for i, line in enumerate(lines):
@@ -658,7 +658,7 @@ def audit_markdown_tables(recalculated: dict) -> list[dict]:
                 if a is not None and exp_a is not None and mk in {"mae", "rmse", "r2"}:
                     checks.append(check(f"phase5_md_ninja_ar_{mk}", close(exp_a, a, 5e-3), f"table={a} recalc={exp_a:.6g}"))
 
-    p6_text = (ROOT / "phase6_comparison.md").read_text(encoding="utf-8") if (ROOT / "phase6_comparison.md").exists() else ""
+    p6_text = (ROOT / "Documentation" / "phase6_comparison.md").read_text(encoding="utf-8") if (ROOT / "Documentation" / "phase6_comparison.md").exists() else ""
     if "cd_multitask_ninja" in recalculated:
         r2 = recalculated["cd_multitask_ninja"]["metrics"]["r2"]
         checks.append(
@@ -672,7 +672,7 @@ def audit_markdown_tables(recalculated: dict) -> list[dict]:
     # Phase 7 markdown vs phase7 arrays / report
     p7r = load_json(MD / "phase7_report.json") or {}
     abl = p7r.get("ablation_metrics", {})
-    p7_tables = parse_md_tables(ROOT / "phase7_validation.md")
+    p7_tables = parse_md_tables(ROOT / "Documentation" / "phase7_validation.md")
     model_map = {
         "A Original PCNN": "A_pcnn",
         "B Residual only": "B_residual_only",
@@ -1033,7 +1033,7 @@ def write_md(payload: dict, path: Path) -> None:
     lines.append(f"Critical failures: **{pr['n_critical_fail']}** | Major failures: **{pr['n_major_fail']}**\n")
     lines.append("### Executive summary\n")
     lines.append("1. All Phase 5–7 headline metrics recalculate from saved prediction arrays (not hard-coded literals).")
-    lines.append("2. Comparison tables in `phase5_comparison.md`, `phase6_comparison.md`, and `phase7_validation.md` match recalculated values within rounding.")
+    lines.append("2. Comparison tables in `Documentation/phase5_comparison.md`, `Documentation/phase6_comparison.md`, and `Documentation/phase7_validation.md` match recalculated values within rounding.")
     lines.append("3. No train/val/test timestamp overlap; scaler is train-only; multitask ninja loss is masked; NSRDB test has zero ninja labels.")
     lines.append("4. Phase 7 sklearn / NaN warnings do **not** affect scientific validity.")
     lines.append("5. Caveats for reviewers: physics-derived NSRDB labels; full-2019 ninja overlaps early train hours (prefer val-holdout ≈ 0.81 R²).\n")
@@ -1214,7 +1214,7 @@ def main():
     with (MD / "phase8_audit.json").open("w", encoding="utf-8") as f:
         json.dump(jsonable(payload), f, indent=2)
 
-    out_md = ROOT / "phase8_audit.md"
+    out_md = ROOT / "Documentation" / "phase8_audit.md"
     write_md(payload, out_md)
     pr = payload["publication_readiness"]
     print(f"Wrote {out_md}")

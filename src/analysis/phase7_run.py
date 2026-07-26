@@ -863,7 +863,7 @@ def run_phase7(n_mc: int = 30) -> dict:
         month=ablation["arrays"]["context"]["month"],
     )
 
-    md_path = ROOT / "phase7_validation.md"
+    md_path = ROOT / "Documentation" / "phase7_validation.md"
     write_validation_md(repro, ablation, stats_out, figures, md_path)
     print(f"Wrote {md_path}")
     return payload

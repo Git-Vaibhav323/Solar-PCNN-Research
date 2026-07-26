@@ -336,13 +336,13 @@ def run_phase4(config_path: str | None = None) -> dict:
     }
 
     report_path = metrics_dir / "phase4_report.json"
+    limitations_doc = ROOT / "Documentation" / "phase4_limitations.md"
+    limitations_art = metrics_dir / "phase4_limitations.md"
+    write_limitations(report, limitations_doc)
+    write_limitations(report, limitations_art)
+    report["limitations"] = str(limitations_doc)
     with report_path.open("w", encoding="utf-8") as f:
         json.dump(report, f, indent=2)
-
-    limitations_path = ROOT / "artifacts" / "metrics" / "phase4_limitations.md"
-    # Also keep a copy at repo root docs-friendly path
-    write_limitations(report, limitations_path)
-    write_limitations(report, ROOT / "phase4_limitations.md")
 
     print(json.dumps(
         {
@@ -354,7 +354,7 @@ def run_phase4(config_path: str | None = None) -> dict:
             "case1_r2": report["case1"]["r2"],
             "picp95": report["uncertainty"]["baseline_meta"]["uncertainty"]["picp_95"],
             "report": str(report_path),
-            "limitations": str(ROOT / "phase4_limitations.md"),
+            "limitations": str(limitations_doc),
         },
         indent=2,
     ))

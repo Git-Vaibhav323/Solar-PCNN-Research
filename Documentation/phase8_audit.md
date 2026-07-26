@@ -13,7 +13,7 @@ Critical failures: **0** | Major failures: **0**
 ### Executive summary
 
 1. All Phase 5–7 headline metrics recalculate from saved prediction arrays (not hard-coded literals).
-2. Comparison tables in `phase5_comparison.md`, `phase6_comparison.md`, and `phase7_validation.md` match recalculated values within rounding.
+2. Comparison tables in `Documentation/phase5_comparison.md`, `Documentation/phase6_comparison.md`, and `Documentation/phase7_validation.md` match recalculated values within rounding.
 3. No train/val/test timestamp overlap; scaler is train-only; multitask ninja loss is masked; NSRDB test has zero ninja labels.
 4. Phase 7 sklearn / NaN warnings do **not** affect scientific validity.
 5. Caveats for reviewers: physics-derived NSRDB labels; full-2019 ninja overlaps early train hours (prefer val-holdout ≈ 0.81 R²).

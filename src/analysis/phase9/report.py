@@ -79,6 +79,6 @@ def run() -> Path:
         ]
     )
 
-    out = ROOT / "phase9_report.md"
+    out = ROOT / "Documentation" / "phase9_report.md"
     out.write_text("\n".join(lines), encoding="utf-8")
     return out

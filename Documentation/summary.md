@@ -152,11 +152,14 @@ Independent recalculation of MAE/RMSE/R²/MAPE/sMAPE/nRMSE/PICP/MPIW from saved 
 | Cross-domain | `src/models/ar_pcnn_cd.py`, `src/training/train_ar_pcnn_cd.py` |
 | Residual ablation (B) | `src/models/residual_only_pcnn.py`, `src/training/train_ablation_residual.py` |
 | Phase 7 runner | `src/analysis/phase7_run.py` |
-| Phase 4 memo | `phase4_limitations.md` |
-| Phase 5 table | `phase5_comparison.md` |
-| Phase 6 table | `phase6_comparison.md` |
-| Phase 7 validation | `phase7_validation.md` |
-| Phase 8 audit | `phase8_audit.md`, `src/analysis/phase8_audit.py` |
+| Phase 4 memo | `Documentation/phase4_limitations.md` |
+| Phase 5 table | `Documentation/phase5_comparison.md` |
+| Phase 6 table | `Documentation/phase6_comparison.md` |
+| Phase 7 validation | `Documentation/phase7_validation.md` |
+| Phase 8 audit | `Documentation/phase8_audit.md`, `src/analysis/phase8_audit.py` |
+| Phase 9 report | `Documentation/phase9_report.md` |
+| How to interpret | `Documentation/interpret.md` |
+| Dependencies | `Documentation/requirements.txt` (also `requirements.txt` at repo root) |
 
 ---
 
@@ -177,7 +180,7 @@ python -m src.analysis.phase9.run_all --skip-train
 
 **Integrity note:** `--skip-train` evaluates existing checkpoints only. Full λ training needs `run_all` without `--skip-train` (completed 25 Jul 2026).
 
-Outputs: `artifacts/phase9/`, `data/figures/phase9/`, `phase9_report.md`
+Outputs: `artifacts/phase9/`, `data/figures/phase9/`, `Documentation/phase9_report.md`
 
 ---
 

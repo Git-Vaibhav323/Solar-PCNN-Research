@@ -283,7 +283,7 @@ Note: early-2019 ninja hours overlap the train window; the val-window subset is 
 | CD Multitask calibrated | {fmt(_g(comparison,'uncertainty','cd_multitask_calibrated','picp'),3)} | {fmt(_g(comparison,'uncertainty','cd_multitask_calibrated','mpiw'),2)} |
 | CD Finetune calibrated | {fmt(_g(comparison,'uncertainty','cd_finetune_calibrated','picp'),3)} | {fmt(_g(comparison,'uncertainty','cd_finetune_calibrated','mpiw'),2)} |
 """
-    out_md = ROOT / "phase6_comparison.md"
+    out_md = ROOT / "Documentation" / "phase6_comparison.md"
     out_md.write_text(md, encoding="utf-8")
     try:
         print(md)
