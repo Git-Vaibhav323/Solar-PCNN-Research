@@ -7,7 +7,7 @@
 ## Verdict
 
 **Publication readiness:** READY with caveats  
-Checks passed: **173/173**  
+Checks passed: **178/178**  
 Critical failures: **0** | Major failures: **0**
 
 ### Executive summary
@@ -52,6 +52,7 @@ Point metrics in Phase 5–7 were produced by `summarize_predictions` / equivale
 | phase5_case1_pcnn_mae_matches_json | PASS | recalc=0.873558 reported=0.8735581319551258 Δ=0 |
 | phase5_case1_pcnn_rmse_matches_json | PASS | recalc=1.54292 reported=1.5429226314288524 Δ=0 |
 | phase5_case1_pcnn_r2_matches_json | PASS | recalc=0.539788 reported=0.5397878981046011 Δ=0 |
+| phase5_case1_pcnn_mape_matches_json | PASS | recalc=166.622 reported=166.62194856458473 Δ=0 |
 | phase5_case1_ar_pcnn_mae_matches_json | PASS | recalc=0.912467 reported=0.9124674422228375 Δ=0 |
 | phase5_case1_ar_pcnn_rmse_matches_json | PASS | recalc=1.62086 reported=1.6208554516340703 Δ=0 |
 | phase5_case1_ar_pcnn_r2_matches_json | PASS | recalc=0.492123 reported=0.4921232773293678 Δ=0 |
@@ -108,22 +109,24 @@ Point metrics in Phase 5–7 were produced by `summarize_predictions` / equivale
 
 ### Recalculated headline numbers
 
-| Experiment | MAE | RMSE | R² | MAPE |
-|------------|-----|------|----|------|
-| phase3_pcnn_nsrdb_test | 2.29473 | 3.76123 | 0.997553 | 10.4521 |
-| phase5_ar_pcnn_nsrdb_test | 7.28434e-05 | 7.37106e-05 | 1 | 0.000302044 |
-| phase5_case1_pcnn | 0.873558 | 1.54292 | 0.539788 | 166.622 |
-| phase5_case1_ar_pcnn | 0.912467 | 1.62086 | 0.492123 | 171.763 |
-| phase7_B_residual | 6.74829e-06 | 1.05558e-05 | 1 | 6.82628e-05 |
-| cd_multitask_nsrdb | 0.0002545 | 0.00223126 | 1 | 0.00185166 |
-| cd_multitask_ninja | 0.504367 | 0.839053 | 0.863903 | 79.8087 |
-| cd_finetune_nsrdb | 7.28434e-05 | 7.37106e-05 | 1 | 0.000302044 |
-| cd_finetune_ninja | 1.632 | 2.79934 | -0.514887 | 100 |
-| phase7_A_pcnn | 2.29473 | 3.76123 | 0.997553 | 10.4521 |
-| phase7_B_residual_only | 6.74829e-06 | 1.05558e-05 | 1 | 6.82628e-05 |
-| phase7_C_residual_gate | 7.28434e-05 | 7.37106e-05 | 1 | 0.000302044 |
-| phase7_D_residual_gate_uq | 7.28434e-05 | 7.37106e-05 | 1 | 0.000302044 |
-| phase7_E_multitask | 0.0002545 | 0.00223126 | 1 | 0.00185166 |
+Absolute MAE/RMSE units: **W** = single-panel NSRDB Watts; **kW** = 10 kW Case-1/Ninja. Do not mix columns across unit regimes.
+
+| Experiment | Unit | MAE | RMSE | R² | MAPE (%) |
+|------------|------|-----|------|----|----------|
+| phase3_pcnn_nsrdb_test | W | 2.29473 | 3.76123 | 0.997553 | 10.4521 |
+| phase5_ar_pcnn_nsrdb_test | W | 7.28434e-05 | 7.37106e-05 | 1 | 0.000302044 |
+| phase5_case1_pcnn | kW | 0.873558 | 1.54292 | 0.539788 | 166.622 |
+| phase5_case1_ar_pcnn | kW | 0.912467 | 1.62086 | 0.492123 | 171.763 |
+| phase7_B_residual | W | 6.74829e-06 | 1.05558e-05 | 1 | 6.82628e-05 |
+| cd_multitask_nsrdb | W | 0.0002545 | 0.00223126 | 1 | 0.00185166 |
+| cd_multitask_ninja | kW | 0.504367 | 0.839053 | 0.863903 | 79.8087 |
+| cd_finetune_nsrdb | W | 7.28434e-05 | 7.37106e-05 | 1 | 0.000302044 |
+| cd_finetune_ninja | kW | 1.632 | 2.79934 | -0.514887 | 100 |
+| phase7_A_pcnn | W | 2.29473 | 3.76123 | 0.997553 | 10.4521 |
+| phase7_B_residual_only | W | 6.74829e-06 | 1.05558e-05 | 1 | 6.82628e-05 |
+| phase7_C_residual_gate | W | 7.28434e-05 | 7.37106e-05 | 1 | 0.000302044 |
+| phase7_D_residual_gate_uq | W | 7.28434e-05 | 7.37106e-05 | 1 | 0.000302044 |
+| phase7_E_multitask | W | 0.0002545 | 0.00223126 | 1 | 0.00185166 |
 
 ## 3. Comparison tables vs recalculated values
 
@@ -146,6 +149,10 @@ Point metrics in Phase 5–7 were produced by `summarize_predictions` / equivale
 | phase5_md_nsrdb_ar_r2 | PASS | table=1.0 recalc=1 |
 | phase5_md_nsrdb_pcnn_mape | PASS | table=10.452 recalc=10.4521 |
 | phase5_md_nsrdb_ar_mape | PASS | table=0.0 recalc=0.000302044 |
+| phase5_md_ninja_pcnn_mae | PASS | table=0.8736 recalc=0.873558 |
+| phase5_md_ninja_ar_mae | PASS | table=0.9125 recalc=0.912467 |
+| phase5_md_ninja_pcnn_rmse | PASS | table=1.5429 recalc=1.54292 |
+| phase5_md_ninja_ar_rmse | PASS | table=1.6209 recalc=1.62086 |
 | phase5_md_ninja_pcnn_r2 | PASS | table=0.5398 recalc=0.539788 |
 | phase5_md_ninja_ar_r2 | PASS | table=0.4921 recalc=0.492123 |
 | phase6_md_contains_mt_ninja_r2 | PASS | markdown includes multitask ninja R2 ≈ 0.8639 |
@@ -153,37 +160,37 @@ Point metrics in Phase 5–7 were produced by `summarize_predictions` / equivale
 | phase7_md_A_pcnn_rmse | PASS | table=3.7612 source=3.761234036969936 |
 | phase7_md_A_pcnn_mae | PASS | table=2.2947 source=2.2947349548339844 |
 | phase7_md_A_pcnn_mape | PASS | table=10.452 source=10.45208090460635 |
+| phase7_md_A_pcnn_picp | PASS | table=0.996 source=0.9962371721778791 |
+| phase7_md_A_pcnn_mpiw | PASS | table=45.72 source=45.7204475402832 |
 | phase7_md_A_pcnn_ninja_r2 | PASS | table=0.5398 source=0.5397878947281368 |
-| phase7_md_A_pcnn_picp | PASS | table=0.996 report=0.9962371721778791 |
-| phase7_md_A_pcnn_mpiw | PASS | table=45.72 report=45.7204475402832 |
 | phase7_md_B_residual_only_r2 | PASS | table=1.0 source=0.9999999999999807 |
 | phase7_md_B_residual_only_rmse | PASS | table=0.0 source=1.0555793703741656e-05 |
 | phase7_md_B_residual_only_mae | PASS | table=0.0 source=6.748289251845563e-06 |
 | phase7_md_B_residual_only_mape | PASS | table=0.0 source=6.826278971217283e-05 |
+| phase7_md_B_residual_only_picp | PASS | table=0.98 source=0.9795895096921323 |
+| phase7_md_B_residual_only_mpiw | PASS | table=0.0 source=0.00012047339987475425 |
 | phase7_md_B_residual_only_ninja_r2 | PASS | table=0.4921 source=0.49212416200062625 |
-| phase7_md_B_residual_only_picp | PASS | table=0.98 report=0.9795895096921323 |
-| phase7_md_B_residual_only_mpiw | PASS | table=0.0 report=0.00012047339987475425 |
 | phase7_md_C_residual_gate_r2 | PASS | table=1.0 source=0.9999999999990601 |
 | phase7_md_C_residual_gate_rmse | PASS | table=0.0001 source=7.371064774159155e-05 |
 | phase7_md_C_residual_gate_mae | PASS | table=0.0001 source=7.284335879376158e-05 |
 | phase7_md_C_residual_gate_mape | PASS | table=0.0 source=0.0003020439393663318 |
+| phase7_md_C_residual_gate_picp | PASS | table=0.683 source=0.6832383124287343 |
+| phase7_md_C_residual_gate_mpiw | PASS | table=0.0 source=0.002570176962763071 |
 | phase7_md_C_residual_gate_ninja_r2 | PASS | table=0.4921 source=0.4921232773293678 |
-| phase7_md_C_residual_gate_picp | PASS | table=0.683 report=0.6832383124287343 |
-| phase7_md_C_residual_gate_mpiw | PASS | table=0.0 report=0.002570176962763071 |
 | phase7_md_D_residual_gate_uq_r2 | PASS | table=1.0 source=0.9999999999990601 |
 | phase7_md_D_residual_gate_uq_rmse | PASS | table=0.0001 source=7.371064774159155e-05 |
 | phase7_md_D_residual_gate_uq_mae | PASS | table=0.0001 source=7.284335879376158e-05 |
 | phase7_md_D_residual_gate_uq_mape | PASS | table=0.0 source=0.0003020439393663318 |
+| phase7_md_D_residual_gate_uq_picp | PASS | table=0.942 source=0.9417331812998859 |
+| phase7_md_D_residual_gate_uq_mpiw | PASS | table=0.01 source=0.014136007986962795 |
 | phase7_md_D_residual_gate_uq_ninja_r2 | PASS | table=0.4921 source=0.4921232773293678 |
-| phase7_md_D_residual_gate_uq_picp | PASS | table=0.942 report=0.9417331812998859 |
-| phase7_md_D_residual_gate_uq_mpiw | PASS | table=0.01 report=0.014136007986962795 |
 | phase7_md_E_multitask_r2 | PASS | table=1.0 source=0.9999999991387867 |
 | phase7_md_E_multitask_rmse | PASS | table=0.0022 source=0.0022312574555796265 |
 | phase7_md_E_multitask_mae | PASS | table=0.0003 source=0.00025450039538554847 |
 | phase7_md_E_multitask_mape | PASS | table=0.002 source=0.0018516639166036345 |
+| phase7_md_E_multitask_picp | PASS | table=0.968 source=0.9678449258836944 |
+| phase7_md_E_multitask_mpiw | PASS | table=0.01 source=0.014767532236874104 |
 | phase7_md_E_multitask_ninja_r2 | PASS | table=0.8639 source=0.8639030248960824 |
-| phase7_md_E_multitask_picp | PASS | table=0.968 report=0.9678449258836944 |
-| phase7_md_E_multitask_mpiw | PASS | table=0.01 report=0.014767532236874104 |
 
 ## 4. Figures vs raw arrays
 
@@ -242,7 +249,7 @@ Publication figures under `data/figures/phase7_publication/` are generated from 
 
 ## 8. Metric changes after audit
 
-No material metric changes. Recalculated values match saved JSON within absolute tolerance 1e−3 (PICP/MPIW 5e−2 for MC stochasticity).
+No material metric changes. Recalculated values match saved JSON with magnitude-aware tolerance: absolute 1e−3 for O(1) metrics; for |value|<1e−2 use max(5e−4 floor, 5% relative) so tiny AR/CD MAE cannot pass order-of-magnitude mismatches while display-rounded tables still match. PICP/MPIW use 5e−2 for MC stochasticity.
 
 
 ## 9. Confidence scores by experiment
@@ -250,7 +257,7 @@ No material metric changes. Recalculated values match saved JSON within absolute
 | Experiment | Confidence (0–1) | Checks passed |
 |------------|------------------|---------------|
 | phase5_nsrdb_pcnn_vs_ar | **1.0** | 16/16 |
-| phase5_case1_ninja | **1.0** | 9/9 |
+| phase5_case1_ninja | **1.0** | 14/14 |
 | phase5_uncertainty | **1.0** | 7/7 |
 | phase6_multitask | **1.0** | 16/16 |
 | phase6_finetune | **1.0** | 8/8 |
@@ -260,12 +267,15 @@ No material metric changes. Recalculated values match saved JSON within absolute
 
 ## 10. Reviewer concerns (disclose)
 
-1. NSRDB targets are physics-derived (`target_power` ≈ analytical prior); near-perfect R² for residual/gated models is partly by construction (Phase 4). Do not over-claim NSRDB accuracy gains.
+1. Lead with Ninja multitask transfer; treat NSRDB near-unity R² as a physics-label consistency check only (Phase 4 circular labels).
 2. Full-2019 ninja Case-1 for multitask overlaps early-2019 train hours that saw masked external loss; prefer val-window holdout R² (~0.81) as the cleaner transfer estimate.
-3. Site coordinates differ slightly from the paper VITCC location (~25 km).
+3. Site coordinates differ slightly from the paper VITCC location (~25 km). Do not align numeric tables to published paper MAE/R²: our NSRDB MAE is Watts (1× TS250) and Case-1 is kW (10 kW system); the paper’s absolute MAE (e.g. 0.0213) does not specify capacity/unit clearly enough to convert — not reconcilable; never guess 0.0213 kW ↔ 21.3 W.
 4. PICP/MPIW for MC Dropout are stochastic across runs; Phase 7 re-runs can differ at the second decimal — report calibrated PICP with seed/n_mc.
 5. Model D shares weights with C; only UQ post-processing differs — state this clearly in the ablation narrative.
-6. Sklearn scaler version skew generates a warning; empirically verified harmless but reviewers may ask for re-serialization.
+6. Feasible fraction = 1.0 is guaranteed by the hard capacity clamp (architecture), not a learned achievement.
+7. Prefer sMAPE / nRMSE over MAPE for external relative error; MAPE inflates at near-zero irradiance.
+8. Sklearn scaler version skew generates a warning; empirically verified harmless but reviewers may ask for re-serialization.
+9. Phase 9 λ-sensitivity: λ=0 is an untrained external-head control (Ninja R² negative); prefer λ≈0.25–1.0 for transfer claims.
 
 ## 11. Full check ledger
 
@@ -293,6 +303,7 @@ No material metric changes. Recalculated values match saved JSON within absolute
 | phase5_case1_pcnn_mae_matches_json | PASS | critical | recalc=0.873558 reported=0.8735581319551258 Δ=0 |
 | phase5_case1_pcnn_rmse_matches_json | PASS | critical | recalc=1.54292 reported=1.5429226314288524 Δ=0 |
 | phase5_case1_pcnn_r2_matches_json | PASS | critical | recalc=0.539788 reported=0.5397878981046011 Δ=0 |
+| phase5_case1_pcnn_mape_matches_json | PASS | critical | recalc=166.622 reported=166.62194856458473 Δ=0 |
 | phase5_case1_ar_pcnn_mae_matches_json | PASS | critical | recalc=0.912467 reported=0.9124674422228375 Δ=0 |
 | phase5_case1_ar_pcnn_rmse_matches_json | PASS | critical | recalc=1.62086 reported=1.6208554516340703 Δ=0 |
 | phase5_case1_ar_pcnn_r2_matches_json | PASS | critical | recalc=0.492123 reported=0.4921232773293678 Δ=0 |
@@ -376,6 +387,10 @@ No material metric changes. Recalculated values match saved JSON within absolute
 | phase5_md_nsrdb_ar_r2 | PASS | critical | table=1.0 recalc=1 |
 | phase5_md_nsrdb_pcnn_mape | PASS | critical | table=10.452 recalc=10.4521 |
 | phase5_md_nsrdb_ar_mape | PASS | critical | table=0.0 recalc=0.000302044 |
+| phase5_md_ninja_pcnn_mae | PASS | critical | table=0.8736 recalc=0.873558 |
+| phase5_md_ninja_ar_mae | PASS | critical | table=0.9125 recalc=0.912467 |
+| phase5_md_ninja_pcnn_rmse | PASS | critical | table=1.5429 recalc=1.54292 |
+| phase5_md_ninja_ar_rmse | PASS | critical | table=1.6209 recalc=1.62086 |
 | phase5_md_ninja_pcnn_r2 | PASS | critical | table=0.5398 recalc=0.539788 |
 | phase5_md_ninja_ar_r2 | PASS | critical | table=0.4921 recalc=0.492123 |
 | phase6_md_contains_mt_ninja_r2 | PASS | critical | markdown includes multitask ninja R2 ≈ 0.8639 |
@@ -383,37 +398,37 @@ No material metric changes. Recalculated values match saved JSON within absolute
 | phase7_md_A_pcnn_rmse | PASS | critical | table=3.7612 source=3.761234036969936 |
 | phase7_md_A_pcnn_mae | PASS | critical | table=2.2947 source=2.2947349548339844 |
 | phase7_md_A_pcnn_mape | PASS | critical | table=10.452 source=10.45208090460635 |
+| phase7_md_A_pcnn_picp | PASS | major | table=0.996 source=0.9962371721778791 |
+| phase7_md_A_pcnn_mpiw | PASS | major | table=45.72 source=45.7204475402832 |
 | phase7_md_A_pcnn_ninja_r2 | PASS | critical | table=0.5398 source=0.5397878947281368 |
-| phase7_md_A_pcnn_picp | PASS | major | table=0.996 report=0.9962371721778791 |
-| phase7_md_A_pcnn_mpiw | PASS | major | table=45.72 report=45.7204475402832 |
 | phase7_md_B_residual_only_r2 | PASS | critical | table=1.0 source=0.9999999999999807 |
 | phase7_md_B_residual_only_rmse | PASS | critical | table=0.0 source=1.0555793703741656e-05 |
 | phase7_md_B_residual_only_mae | PASS | critical | table=0.0 source=6.748289251845563e-06 |
 | phase7_md_B_residual_only_mape | PASS | critical | table=0.0 source=6.826278971217283e-05 |
+| phase7_md_B_residual_only_picp | PASS | major | table=0.98 source=0.9795895096921323 |
+| phase7_md_B_residual_only_mpiw | PASS | major | table=0.0 source=0.00012047339987475425 |
 | phase7_md_B_residual_only_ninja_r2 | PASS | critical | table=0.4921 source=0.49212416200062625 |
-| phase7_md_B_residual_only_picp | PASS | major | table=0.98 report=0.9795895096921323 |
-| phase7_md_B_residual_only_mpiw | PASS | major | table=0.0 report=0.00012047339987475425 |
 | phase7_md_C_residual_gate_r2 | PASS | critical | table=1.0 source=0.9999999999990601 |
 | phase7_md_C_residual_gate_rmse | PASS | critical | table=0.0001 source=7.371064774159155e-05 |
 | phase7_md_C_residual_gate_mae | PASS | critical | table=0.0001 source=7.284335879376158e-05 |
 | phase7_md_C_residual_gate_mape | PASS | critical | table=0.0 source=0.0003020439393663318 |
+| phase7_md_C_residual_gate_picp | PASS | major | table=0.683 source=0.6832383124287343 |
+| phase7_md_C_residual_gate_mpiw | PASS | major | table=0.0 source=0.002570176962763071 |
 | phase7_md_C_residual_gate_ninja_r2 | PASS | critical | table=0.4921 source=0.4921232773293678 |
-| phase7_md_C_residual_gate_picp | PASS | major | table=0.683 report=0.6832383124287343 |
-| phase7_md_C_residual_gate_mpiw | PASS | major | table=0.0 report=0.002570176962763071 |
 | phase7_md_D_residual_gate_uq_r2 | PASS | critical | table=1.0 source=0.9999999999990601 |
 | phase7_md_D_residual_gate_uq_rmse | PASS | critical | table=0.0001 source=7.371064774159155e-05 |
 | phase7_md_D_residual_gate_uq_mae | PASS | critical | table=0.0001 source=7.284335879376158e-05 |
 | phase7_md_D_residual_gate_uq_mape | PASS | critical | table=0.0 source=0.0003020439393663318 |
+| phase7_md_D_residual_gate_uq_picp | PASS | major | table=0.942 source=0.9417331812998859 |
+| phase7_md_D_residual_gate_uq_mpiw | PASS | major | table=0.01 source=0.014136007986962795 |
 | phase7_md_D_residual_gate_uq_ninja_r2 | PASS | critical | table=0.4921 source=0.4921232773293678 |
-| phase7_md_D_residual_gate_uq_picp | PASS | major | table=0.942 report=0.9417331812998859 |
-| phase7_md_D_residual_gate_uq_mpiw | PASS | major | table=0.01 report=0.014136007986962795 |
 | phase7_md_E_multitask_r2 | PASS | critical | table=1.0 source=0.9999999991387867 |
 | phase7_md_E_multitask_rmse | PASS | critical | table=0.0022 source=0.0022312574555796265 |
 | phase7_md_E_multitask_mae | PASS | critical | table=0.0003 source=0.00025450039538554847 |
 | phase7_md_E_multitask_mape | PASS | critical | table=0.002 source=0.0018516639166036345 |
+| phase7_md_E_multitask_picp | PASS | major | table=0.968 source=0.9678449258836944 |
+| phase7_md_E_multitask_mpiw | PASS | major | table=0.01 source=0.014767532236874104 |
 | phase7_md_E_multitask_ninja_r2 | PASS | critical | table=0.8639 source=0.8639030248960824 |
-| phase7_md_E_multitask_picp | PASS | major | table=0.968 report=0.9678449258836944 |
-| phase7_md_E_multitask_mpiw | PASS | major | table=0.01 report=0.014767532236874104 |
 | phase7_A_ninja_matches_case1_array | PASS | critical | case1=0.539788 p7=0.5397878947281368 |
 | phase7_E_ninja_matches_cd_array | PASS | critical | cd=0.863903 p7=0.8639030248960824 |
 | figure_exists:interpretability_C.png | PASS | critical | data\figures\phase7_publication\interpretability_C.png |

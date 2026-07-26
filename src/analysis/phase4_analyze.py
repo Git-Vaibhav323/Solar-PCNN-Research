@@ -290,13 +290,13 @@ def write_limitations(report: dict, out_path: Path) -> None:
 ## 3. Weak external generalization (Renewables.ninja Case 1)
 
 - Case 1 R² ≈ **{case1['r2']:.3f}**, MAE ≈ **{case1['mae']:.2f} kW**, bias ≈ **{case1['mean_bias_kw']:.2f} kW**.
-- Paper reported Case 1 R² ≈ 0.998 — our protocol does not match that transfer.
+- Published Case-1 R² is not used as a benchmark (unit/site/protocol mismatch).
 - Likely drivers: {', '.join(case1['likely_gap_drivers'][:3])}.
 - **Limitation:** model trained on NSRDB physics targets does not transfer cleanly to ninja’s MERRA-2 PV series.
 
 ## 4. Uncertainty is over-conservative
 
-- Test PICP @ 95% ≈ **{uq['baseline_meta']['uncertainty']['picp_95']:.3f}** (paper ~0.947).
+- Test PICP @ 95% ≈ **{uq['baseline_meta']['uncertainty']['picp_95']:.3f}** (over-wide vs nominal 95%).
 - Calibration curve shows coverage above the diagonal at all nominal levels.
 - **Limitation:** MC Dropout bands are too wide for decision-making; need calibration (temperature scaling, conformal, better aleatoric head, etc.).
 

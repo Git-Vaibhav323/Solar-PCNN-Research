@@ -4,7 +4,7 @@
 
 This repository reproduces a Physics-Constrained Neural Network (PCNN) for solar power forecasting, then extends it with an **Adaptive Residual PCNN (AR-PCNN)** and **cross-domain multi-task learning** so the model works better when weather data and power labels come from different sources.
 
-> **One-line result:** On NSRDB physics targets the models stay near-perfect and physically feasible. On Renewables.ninja (external 10 kW system), multi-task AR-PCNN lifts R² from ~0.5 → **~0.86** (cleaner val-holdout ~**0.81**). Phase 8 audit: **173/173** metric checks pass.
+> **One-line result:** Multi-task AR-PCNN lifts Renewables.ninja R² from ~0.5 → **~0.86** (cleaner val-holdout ~**0.81**). NSRDB physics-target scores stay near-perfect as a **consistency check** (labels are physics-derived — not a forecasting claim). Phase 8 audit: **178/178** metric checks pass.
 
 ---
 
@@ -121,12 +121,12 @@ Architecture is **frozen** from Phase 5/6 onward. Later phases only validate and
 |-------|-------------|---------|
 | **1** | Collect NSRDB 2016–2020 + Renewables.ninja 2019 | Raw data ready |
 | **2** | Clean, physics target, chronological split, train-only scaler | 28,062 / 7,016 / 8,770 |
-| **3** | Reproduce paper PCNN in PyTorch | NSRDB R²≈0.998; Ninja≈0.54 |
+| **3** | Reproduce paper PCNN in PyTorch | NSRDB fidelity R²≈0.998; Ninja≈0.54 (no paper-number alignment claimed) |
 | **4** | Diagnose failures | Physics-label copying; weak ninja transfer; UQ too wide |
 | **5** | AR-PCNN + conformal UQ | Gate α≈0.94; PICP≈0.94; Ninja still ~0.49 |
 | **6** | Multi-task + failed fine-tune | **Ninja R²≈0.86**; fine-tune failed (useful negative) |
 | **7** | Ablation A–E, interpretability, stats, publication figures | Each piece isolated |
-| **8** | Independent metric audit from saved arrays | **173/173 PASS** |
+| **8** | Independent metric audit from saved arrays | **178/178 PASS** |
 | **9** | Extra analyses (gate, residual, noise, regimes, …) | Evidence pack; see `phase9_report.md` |
 
 ---
@@ -160,24 +160,29 @@ Architecture is **frozen** from Phase 5/6 onward. Later phases only validate and
 
 ## 5. Results & comparisons
 
-> Numbers below match Phase 5–7 comparison tables. Prefer **val-holdout Ninja R² ≈ 0.81** for the cleanest transfer claim. On NSRDB, write **R² ≈ 1.0** with MAE in Watts — not literal `R² = 1.0000` (rounding; see Phase 8).
+> **Lead claim:** Ninja multitask transfer (prefer **val-holdout R² ≈ 0.81**; full-2019 ≈ 0.86).  
+> NSRDB R² ≈ 1.0 + MAE (W) is a **physics-fidelity sanity check** only — labels are physics-derived. Do not write literal `R² = 1.0000`.  
+> Model **D** reuses **C** weights (calibration only) — not a separately trained model.
 
 ### 5.1 Main comparison table
 
-| Model | NSRDB R² | NSRDB MAE (W) | Ninja R² | Feasible | PICP note |
-|-------|----------|---------------|----------|----------|-----------|
-| A PCNN | 0.9976 | 2.29 | 0.54 | 1.00 | Raw MC ≈ 0.999 (too wide) |
-| B Residual only | ≈1.0 | ~0 | 0.49 | 1.00 | — |
-| C Residual + Gate | ≈1.0 | ~0 | 0.49 | 1.00 | Raw MC under-covered |
-| D C + Calibrated UQ | ≈1.0 | ~0 | 0.49 | 1.00 | **Calibrated ≈ 0.95** |
-| E Multitask CD | ≈1.0 | ~0.0003 | **0.86** | 1.00 | Calibrated ≈ 0.96 |
+| Model | Ninja R² (—) | NSRDB R² (—) | NSRDB MAE (W) | Feasible† | PICP note |
+|-------|--------------|--------------|---------------|-----------|-----------|
+| A PCNN | 0.54 | 0.9976 | 2.29 | 1.00 | Raw MC ≈ 0.999 (too wide) |
+| B Residual only | 0.49 | ≈1.0 | ~0 | 1.00 | — |
+| C Residual + Gate | 0.49 | ≈1.0 | ~0 | 1.00 | Raw MC under-covered |
+| D C + Calibrated UQ | 0.49 | ≈1.0 | ~0 | 1.00 | **Calibrated ≈ 0.95** |
+| E Multitask CD | **0.86** | ≈1.0 | ~0.0003 | 1.00 | Calibrated ≈ 0.96 |
+
+† `Feasible = 1.0` is by hard clamp in the forward pass (architecture), not a learned score.  
+**Units:** NSRDB MAE is **W** (single TS250 panel). Ninja R² is on a **10 kW** system (electricity in **kW**). Do not convert source-paper absolute MAE (e.g. 0.0213) into our tables — capacity/unit there is **not reconcilable**.
 
 **What this table means in plain language**
 
-- Residual/gate fix NSRDB reconstruction — but NSRDB labels are physics-derived, so that win is partly by design (Phase 4).
+- Residual/gate make NSRDB reconstruction nearly exact — expected when labels ≈ physics (Phase 4).
 - **Gating alone does not fix domain shift** (Ninja stays ~0.49).
 - **Calibration** fixes interval coverage without changing point predictions.
-- **Multi-task** is what lifts Ninja performance.
+- **Multi-task** is what lifts Ninja performance — the actual contribution.
 
 ### 5.2 Phase 5 — PCNN vs AR-PCNN
 
@@ -213,9 +218,9 @@ Details: [`phase7_validation.md`](phase7_validation.md)
 
 ### 5.5 Audit (Phase 8)
 
-Independent recalculation of MAE / RMSE / R² / MAPE / PICP / MPIW from saved prediction arrays — **no hard-coded table numbers**.
+Independent recalculation of MAE / RMSE / R² / MAPE / sMAPE / nRMSE / PICP / MPIW from saved prediction arrays — **no hard-coded table numbers**.
 
-- Result: **173/173 PASS**, publication readiness **READY with caveats**
+- Result: **178/178 PASS**, publication readiness **READY with caveats**
 - Report: [`phase8_audit.md`](phase8_audit.md)
 
 ---
@@ -392,13 +397,18 @@ Integrity (Phase 7/8): no timestamp overlap; 2020 test has **zero** ninja labels
 
 ## 10. Important caveats
 
-Read these before claiming “state-of-the-art accuracy” on NSRDB.
+Read these before claiming accuracy wins.
 
-1. **NSRDB labels ≈ analytical physics** → near-unity R² for residual models is partly by construction (`phase4_limitations.md`).
+1. **NSRDB labels ≈ analytical physics** → near-unity R² for residual models is a consistency check, not a forecasting claim (`phase4_limitations.md`).
 2. Prefer **Ninja val-holdout R² ≈ 0.81** over full-2019 **0.86** (early-2019 train overlap).
 3. Report NSRDB as **R² ≈ 1.0** + MAE (W), not `R² = 1.0000`.
-4. Phase 9 λ-sweep / multi-seed are **incomplete** unless you run full training (`phase9_report.md` claim audit).
-5. Site coordinates differ slightly from the paper’s VITCC point.
+4. **λ-sensitivity:** full grid λ ∈ {0, 0.05, 0.1, 0.25, 0.5, 1.0} is in `artifacts/phase9/csv/exp01_lambda_sensitivity.csv` (Ninja peaks near λ≈0.25; λ=0 leaves the external head untrained → Ninja R²≈−0.51).
+5. Site coordinates differ slightly from the paper’s VITCC point (~25 km) — disclose in methods.
+6. **Do not align numeric tables to the source paper.** Our NSRDB MAE is **W** (1× panel); Case-1 is **kW** (10 kW system). The paper’s absolute MAE (e.g. 0.0213) does not state capacity/unit clearly enough to convert — **not reconcilable**; never guess `0.0213 kW = 21.3 W`.
+7. `Feasible = 1.0` / hard physics clamps are architectural, not learned.
+8. Prefer **sMAPE / nRMSE** over MAPE for external (ninja) relative error — MAPE inflates at near-zero irradiance.
+9. Model D = Model C weights + conformal calibration only.
+10. Put **units in every table row** (`MAE (W)`, `MAE (kW)`, `MPIW (W)`) — do not rely on section headers alone.
 
 ---
 
@@ -431,7 +441,8 @@ This codebase is a research implementation for fair comparison, diagnostics, and
 ## Status badge (plain text)
 
 ```text
-Phases 1–8  COMPLETE  |  Architecture FROZEN  |  Audit 173/173 PASS
-Phase 9     OPTIONAL analyses available under src/analysis/phase9/
-Headline    Multitask CD: Ninja R² ~0.86 (val-holdout ~0.81)
+Phases 1–9  COMPLETE  |  Architecture FROZEN  |  Audit 178/178 PASS
+Headline    Multitask CD: Ninja R² ~0.86 (val-holdout ~0.81) — primary claim
+λ-sweep     Complete; Ninja peaks ~λ=0.25 (λ=0 = untrained-head control)
+NSRDB       Physics-fidelity consistency only (labels physics-derived)
 ```

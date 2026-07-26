@@ -2,15 +2,18 @@
 
 *Living document. Written in plain language. Update this after each phase wraps up.*
 
-**Last updated:** 24 Jul 2026 (end of Phase 8 scientific audit)
+**Last updated:** 25 Jul 2026 (submission-integrity cleanup)
 
 ---
 
 ## What this project is about
 
-We are reproducing a research paper on **Physics-Constrained Neural Networks (PCNN)** for solar power forecasting, then improving it with a novel architecture and better training — always grounded in diagnostics, not random model growth.
+We reproduce a Physics-Constrained Neural Network (PCNN) for solar PV, then improve **cross-domain transfer** to Renewables.ninja via multi-task learning — always grounded in diagnostics, not random model growth.
 
-Our rule: **reproduce first, invent later** — and keep earlier models frozen for fair comparison.
+**Primary claim:** masked multitask learning lifts Ninja R² ~0.5 → ~0.86 (val-holdout ~0.81).  
+**Not a primary claim:** near-perfect NSRDB R² (labels are physics-derived).
+
+Rule: **reproduce first, invent later** — keep earlier models frozen for fair comparison.
 
 ---
 
@@ -25,8 +28,8 @@ Our rule: **reproduce first, invent later** — and keep earlier models frozen f
 | 5 | Novel AR-PCNN + calibrated uncertainty | Done (architecture frozen) |
 | 6 | Cross-domain learning (NSRDB + ninja) | Done |
 | 7 | Validation, ablation, interpretability, stats | Done |
-| 8 | Scientific audit of all reported results | Done |
-| 9 | Publication enhancement & advanced validation | **Available** |
+| 8 | Scientific audit of all reported results | Done (magnitude-aware tol) |
+| 9 | Publication enhancement & advanced validation | Done (full λ-sweep + multi-seed) |
 
 ---
 
@@ -35,8 +38,8 @@ Our rule: **reproduce first, invent later** — and keep earlier models frozen f
 - NSRDB 2016–2020 + Renewables.ninja 2019 collected and prepared.
 - Chronological splits; train-only normalization; physics target for TS250 panel.
 - Baseline dual-branch PCNN trained on GPU.
-- NSRDB test: R² ≈ 0.998, MAE ≈ 2.3 W, 100% feasible.
-- Ninja Case 1: R² ≈ 0.54.
+- NSRDB test (consistency): R² ≈ 0.998, MAE ≈ 2.3 W, feasible=1.0 by clamp.
+- Ninja Case 1: R² ≈ 0.54 (we do **not** align to published paper Case-1 numbers).
 - MC Dropout: PICP ≈ 0.999 (too wide).
 
 ---
@@ -55,18 +58,18 @@ Full memo: `phase4_limitations.md`.
 
 `ŷ = α × P_physics + r` (+ capacity clamp) with conformal-calibrated MC Dropout.
 
-- NSRDB ≈ perfect; calibrated PICP ≈ 0.94.
+- NSRDB ≈ perfect as expected for physics labels; calibrated PICP ≈ 0.94.
 - Ninja R² ≈ 0.49 (no free transfer gain from gating alone).
 
 Details: `phase5_comparison.md`.
 
 ---
 
-## Phase 6 — Cross-domain multi-task
+## Phase 6 — Cross-domain multi-task (**main result**)
 
 Same physics path + external kW head; masked ninja loss.
 
-- Multitask: ninja R² ≈ **0.86** (val holdout ≈ 0.81); NSRDB still ~1.0; PICP ≈ 0.96.
+- Multitask: ninja R² ≈ **0.86** (val holdout ≈ **0.81**); NSRDB stays near-perfect as consistency; PICP ≈ 0.96.
 - Frozen-encoder fine-tune: failed (R² negative) — useful negative result.
 
 Details: `phase6_comparison.md`.
@@ -83,17 +86,19 @@ Architecture **not** changed. Focus: integrity, ablation, interpretability, erro
 
 ### Ablation (identical protocol)
 
-| Model | NSRDB R² | Ninja R² | PICP note |
-|-------|----------|----------|-----------|
-| A Original PCNN | 0.998 | 0.54 | raw MC over-wide |
-| B Residual only | ~1.0 | 0.49 | residual collapses NSRDB error |
-| C Residual + Gate | ~1.0 | 0.49 | α ≈ 0.94; interpretable |
-| D + Calibrated UQ | ~1.0 | 0.49 | PICP → **0.95** (same point preds as C) |
-| E + Multitask | ~1.0 | **0.86** | only arm that fixes domain shift |
+| Model | Ninja R² (—) | NSRDB R² (—) | PICP note |
+|-------|--------------|--------------|-----------|
+| A Original PCNN | 0.54 | 0.998 | raw MC over-wide |
+| B Residual only | 0.49 | ~1.0 | residual collapses NSRDB error |
+| C Residual + Gate | 0.49 | ~1.0 | α ≈ 0.94; interpretable |
+| D + Calibrated UQ | 0.49 | ~1.0 | PICP → **0.95** (same point preds as C) |
+| E + Multitask | **0.86** | ~1.0 | only arm that fixes domain shift |
+
+NSRDB absolute errors (not shown above) are in **W**; Ninja R² is on a **10 kW** system.
 
 ### What we learned (plain language)
 
-- Residual/gate models beat A on NSRDB MAE with **statistically significant** paired Wilcoxon tests, but the practical NSRDB R² lift is tiny because A was already excellent — high NSRDB scores partly reflect physics-derived labels.
+- High NSRDB scores partly reflect physics-derived labels — treat as fidelity, not forecasting.
 - **Calibration (D)** is what makes uncertainty trustworthy; gating alone does not.
 - **Multi-task (E)** is what lifts Renewables.ninja performance; architecture tricks without external labels do not.
 - Gate α stays high: the model trusts physics by day and adjusts more at night; ninja adaptation lives in the external head.
@@ -109,12 +114,10 @@ Architecture **not** changed. Focus: integrity, ablation, interpretability, erro
 
 ## Phase 8 — Scientific audit
 
-Independent recalculation of MAE/RMSE/R²/MAPE/PICP/MPIW from saved prediction arrays.
+Independent recalculation of MAE/RMSE/R²/MAPE/sMAPE/nRMSE/PICP/MPIW from saved prediction arrays.
 
-- **173/173 checks PASS**
+- **178/178 checks PASS** (magnitude-aware tolerance: abs 1e−3 for O(1); 5% relative for |value|<1e−2)
 - Publication readiness: **READY with caveats**
-- No material metric changes vs Phase 5–7 tables
-- Phase 7 warnings (sklearn version, feature names, NaN mean on Model A) do not affect validity
 - Full ledger: `phase8_audit.md` / `artifacts/metrics/phase8_audit.json`
 - Re-run: `python -m src.analysis.phase8_audit`
 
@@ -123,9 +126,9 @@ Independent recalculation of MAE/RMSE/R²/MAPE/PICP/MPIW from saved prediction a
 ## Main lessons (project)
 
 1. Phase 4 was right: architecture alone cannot fix domain shift.
-2. Residual + gate gives interpretability and near-perfect physics reconstruction.
+2. Residual + gate gives interpretability and near-perfect physics reconstruction (by design of the label).
 3. Conformal calibration fixes UQ coverage.
-4. External supervision + shared encoder lifts ninja R² ~0.5 → ~0.86.
+4. External supervision + shared encoder lifts ninja R² ~0.5 → ~0.86 — **this is the paper contribution**.
 5. Multi-task > frozen-head fine-tune.
 6. Phase 7 ablations isolate each contribution with shared metrics and integrity checks.
 
@@ -133,10 +136,10 @@ Independent recalculation of MAE/RMSE/R²/MAPE/PICP/MPIW from saved prediction a
 
 ## What’s next (paper)
 
-- [ ] Write methods/results paragraphs from Phases 5–7
+- [ ] Write methods/results around **Ninja multitask transfer** (not NSRDB R²≈1)
 - [ ] Select final publication figures from `data/figures/phase7_publication/`
-- [ ] Push Phase 5–7 code and markdowns to GitHub
-- [ ] Optional: sensitivity on `lambda_external`; metered PV targets if available
+- [ ] Optional: complete full `lambda_external` sweep before claiming λ-sensitivity
+- [ ] Optional: metered PV targets if available
 
 ---
 
@@ -172,12 +175,12 @@ python -m src.analysis.phase9.run_all
 python -m src.analysis.phase9.run_all --skip-train
 ```
 
-Outputs: `artifacts/phase9/`, `data/figures/phase9/`, `phase9_report.md`
+**Integrity note:** `--skip-train` evaluates existing checkpoints only. Full λ training needs `run_all` without `--skip-train` (completed 25 Jul 2026).
 
-Experiments: λ sensitivity, gate/residual interpretability, multi-seed stability, runtime, feature importance, embeddings, regime errors, noise robustness.
+Outputs: `artifacts/phase9/`, `data/figures/phase9/`, `phase9_report.md`
 
 ---
 
 ## One-line status
 
-**Independent audit confirms Phase 5–7 metrics are reproducible from saved arrays (173/173 checks); publication-ready with disclosed caveats on physics-derived labels and ninja train overlap.**
+**Primary result is Ninja multitask transfer (~0.86 / holdout ~0.81); NSRDB near-unity R² is disclosed as physics-label consistency. Audit 178/178. Full λ-sweep complete (Ninja peaks ~λ=0.25).**

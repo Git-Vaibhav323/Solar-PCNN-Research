@@ -103,12 +103,27 @@ def run() -> pd.DataFrame:
     fig.tight_layout()
     save_fig(fig, "exp08_regime_errors.png")
 
-    text = """## Regime-wise error analysis
+    # Honest multitask cost on physics path (NSRDB still tiny MAE, but RMSE can inflate)
+    ar_aft = df[(df.regime == "afternoon") & (df.model == "AR-PCNN")]
+    cd_aft = df[(df.regime == "afternoon") & (df.model == "CD-Multitask")]
+    ar_med = df[(df.regime == "medium_ghi") & (df.model == "AR-PCNN")]
+    cd_med = df[(df.regime == "medium_ghi") & (df.model == "CD-Multitask")]
+    trade = ""
+    if len(ar_aft) and len(cd_aft) and len(ar_med) and len(cd_med):
+        trade = (
+            f"- **Multitask cost (disclose):** CD physics-path RMSE can be much larger than "
+            f"AR-PCNN in some regimes despite still-small MAE — afternoon RMSE "
+            f"{cd_aft.iloc[0]['rmse']:.2e} vs {ar_aft.iloc[0]['rmse']:.2e}; "
+            f"medium_ghi RMSE {cd_med.iloc[0]['rmse']:.2e} vs {ar_med.iloc[0]['rmse']:.2e}. "
+            f"Do not claim identical physics residuals after multitask."
+        )
+    text = f"""## Regime-wise error analysis
 
 - **Night / low-GHI:** All models show near-zero absolute error (targets near zero).
-- **High-GHI / afternoon:** Baseline PCNN MAE is largest; AR-PCNN and CD reduce errors to ~10⁻⁴ W scale.
-- **Cloudy vs clear:** Residual models flatten regime gaps; PCNN retains higher afternoon MAE.
-- **Seasonal:** Summer/winter differences are small for AR/CD paths on NSRDB physics target.
+- **High-GHI / afternoon:** Baseline PCNN MAE is largest; AR-PCNN stays ~10⁻⁴ W; CD MAE stays small but RMSE can degrade (encoder shared with ninja head).
+- **Cloudy vs clear:** Residual models flatten regime gaps vs PCNN; multitask is not free on every regime.
+- **Seasonal:** Summer/winter differences remain small in MAE for AR/CD on the NSRDB physics target.
+{trade}
 """
     plain_summary(REPORT_DIR / "exp08_regime_errors.md", text)
     return df

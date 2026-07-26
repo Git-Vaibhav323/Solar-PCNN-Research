@@ -729,8 +729,14 @@ def write_validation_md(repro, ablation, stats_out, figures, out_path: Path) -> 
     lines.append("- All models scored with `src.models.metrics.summarize_predictions` / shared Case-1 alignment.\n")
 
     lines.append("## 2. Ablation study\n")
-    lines.append("| Model | R2 | RMSE | MAE | MAPE% | PICP | MPIW | Feasible | Ninja R2 |")
-    lines.append("|-------|----|------|-----|-------|------|------|----------|----------|")
+    lines.append(
+        "NSRDB absolute errors are **Watts** (1× TS250). **Ninja R²** is on the **10 kW** Case-1 series. "
+        "MPIW is on the NSRDB physics path (**W**).\n"
+    )
+    lines.append(
+        "| Model | R² (—) | RMSE (W) | MAE (W) | MAPE (%) | PICP (—) | MPIW (W) | Feasible (—) | Ninja R² (—) |"
+    )
+    lines.append("|-------|--------|----------|---------|----------|----------|----------|--------------|--------------|")
     for key, label in order:
         r = m[key]
         lines.append(

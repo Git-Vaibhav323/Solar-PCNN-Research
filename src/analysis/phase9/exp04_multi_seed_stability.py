@@ -113,18 +113,31 @@ def run(skip_train: bool = False, seeds: list[int] | None = None) -> pd.DataFram
         fig.tight_layout()
         save_fig(fig, "exp04_multi_seed_stability.png")
 
+        failed = df[df["ninja_r2"] < 0]
+        if len(failed):
+            fail_note = (
+                f"**Outliers:** {len(failed)} seed(s) with negative Ninja R² "
+                f"({failed['seed'].tolist()}) — report them explicitly; mean±std alone misleads."
+            )
+        else:
+            per = ", ".join(f"{int(s)}→{r:.3f}" for s, r in zip(df["seed"], df["ninja_r2"]))
+            fail_note = (
+                f"All {len(df)} seeds succeed on Ninja (per-seed R²: {per}). "
+                f"Do not confuse this with the separate frozen-finetune failure (R²≈−0.51)."
+            )
         text = f"""## Multi-seed stability
 
 Seeds evaluated: {sorted(df['seed'].tolist())}
 
 | Metric | mean ± std |
 |--------|------------|
-| NSRDB R² | {summary['nsrdb_r2_mean_std'][0]:.6f} ± {summary['nsrdb_r2_mean_std'][1]:.6f} |
+| NSRDB R² (—) | {summary['nsrdb_r2_mean_std'][0]:.6f} ± {summary['nsrdb_r2_mean_std'][1]:.6f} |
 | NSRDB MAE (W) | {summary['nsrdb_mae_mean_std'][0]:.6g} ± {summary['nsrdb_mae_mean_std'][1]:.6g} |
-| Ninja R² | {summary['ninja_r2_mean_std'][0]:.4f} ± {summary['ninja_r2_mean_std'][1]:.4f} |
-| PICP | {summary['picp_mean_std'][0]:.3f} ± {summary['picp_mean_std'][1]:.3f} |
+| Ninja R² (—) | {summary['ninja_r2_mean_std'][0]:.4f} ± {summary['ninja_r2_mean_std'][1]:.4f} |
+| Ninja MAE (kW) | {summary['ninja_mae_mean_std'][0]:.4f} ± {summary['ninja_mae_mean_std'][1]:.4f} |
+| PICP (—) | {summary['picp_mean_std'][0]:.3f} ± {summary['picp_mean_std'][1]:.3f} |
 
-Inspect per-seed rows in `exp04_multi_seed_runs.csv` before trusting mean±std (one failed seed can inflate std).
+{fail_note}
 """
         plain_summary(REPORT_DIR / "exp04_multi_seed_stability.md", text)
 

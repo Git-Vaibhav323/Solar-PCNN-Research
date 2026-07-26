@@ -112,15 +112,33 @@ def run(skip_train: bool = False) -> pd.DataFrame:
         fig.tight_layout()
         save_fig(fig, "exp01_lambda_sensitivity.png")
 
-        best_ninja = df.loc[df["ninja_r2"].idxmax()]
-        best_phys = df.loc[df["nsrdb_mae"].idxmin()]
-        text = f"""## Hyperparameter sensitivity (lambda_external)
+        n_eval = len(df)
+        lambdas_done = sorted(df["lambda_external"].tolist())
+        if n_eval < len(LAMBDA_VALUES):
+            text = f"""## Hyperparameter sensitivity (lambda_external)
+
+- **Status: incomplete — do not claim a λ sweep.** Planned grid λ ∈ {LAMBDA_VALUES}; only λ ∈ {lambdas_done} has evaluation rows in `exp01_lambda_sensitivity.csv`.
+- Reported numbers below are for the evaluated λ only (typically the frozen Phase-6 checkpoint at λ=1.0 when run with `--skip-train`).
+- At λ={df.iloc[0]['lambda_external']}: NSRDB MAE={df.iloc[0]['nsrdb_mae']:.6g} W, Ninja R²={df.iloc[0]['ninja_r2']:.4f}, PICP={df.iloc[0]['picp']:.3f}.
+- **Publication rule:** omit λ-sensitivity figures/claims until all planned λ values are trained and present in the CSV.
+"""
+        else:
+            best_ninja = df.loc[df["ninja_r2"].idxmax()]
+            best_phys = df.loc[df["nsrdb_mae"].idxmin()]
+            row0 = df.loc[df["lambda_external"] == 0.0]
+            zero_note = ""
+            if len(row0):
+                zero_note = (
+                    f" **λ=0 → Ninja R²≈{row0.iloc[0]['ninja_r2']:.2f}** "
+                    f"(external head never trained — control, not a seed failure)."
+                )
+            text = f"""## Hyperparameter sensitivity (lambda_external)
 
 - Swept λ ∈ {LAMBDA_VALUES} with frozen architecture; each run warm-starts from Phase-5 AR-PCNN.
-- **Physics fidelity:** NSRDB R² stays ≈1 across λ; lowest NSRDB MAE at λ={best_phys['lambda_external']} (MAE={best_phys['nsrdb_mae']:.6g} W).
-- **Cross-domain:** Ninja R² peaks at λ={best_ninja['lambda_external']} (R²={best_ninja['ninja_r2']:.4f}).
-- **Trade-off:** Higher λ pulls the shared encoder toward ninja labels; very low λ under-trains the external head; λ≈0.25–1.0 balances physics MAE and ninja R² in this sweep.
-- **UQ:** PICP remains near 0.95 after conformal scaling for all trained λ values.
+- **Physics fidelity:** NSRDB R² stays ≈1 across λ; lowest NSRDB MAE at λ={best_phys['lambda_external']} (MAE={best_phys['nsrdb_mae']:.6g} W) — expected when external loss is off if that is λ=0.
+- **Cross-domain:** Ninja R² peaks at λ={best_ninja['lambda_external']} (R²={best_ninja['ninja_r2']:.4f}); λ>0 stays ≈0.86–0.87.{zero_note}
+- **Trade-off:** Any λ>0 trains the ninja head; λ≈0.25–1.0 keeps physics MAE tiny while holding Ninja R². PICP is weaker at very low λ before recovering near λ≥0.25.
+- **UQ:** PICP after conformal scaling is listed per λ in the CSV.
 """
         plain_summary(REPORT_DIR / "exp01_lambda_sensitivity.md", text)
 

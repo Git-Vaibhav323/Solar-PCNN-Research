@@ -124,7 +124,13 @@ def run_case1(
             "system_capacity_kw": p_rated * n_panels / 1000.0,
             "align_start": str(frame["align_ts"].iloc[0]),
             "align_end": str(frame["align_ts"].iloc[-1]),
-            "paper_case1_reference_r2": 0.9983,
+            "paper_metric_alignment": "not_reconcilable",
+            "note": (
+                "Published Case-1 absolute-error figures are not used as a reference: "
+                "our Case-1 is a 10 kW system in kW; the source paper does not specify "
+                "system capacity/unit clearly enough for safe conversion — not reconcilable. "
+                "Do not guess conversions such as 0.0213 kW ↔ 21.3 W."
+            ),
         }
     )
 

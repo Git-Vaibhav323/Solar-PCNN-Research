@@ -19,13 +19,13 @@
 ## 3. Weak external generalization (Renewables.ninja Case 1)
 
 - Case 1 R² ≈ **0.540**, MAE ≈ **0.87 kW**, bias ≈ **0.60 kW**.
-- Paper reported Case 1 R² ≈ 0.998 — our protocol does not match that transfer.
-- Likely drivers: NSRDB weather vs MERRA-2 weather underlying ninja, Ninja system model (tilt 35°, losses, tracking=0) vs simple TS250 physics target, Site coordinate / timezone alignment differences.
+- We **do not** cite published Case-1 R² as a benchmark: units, site (~25 km from VITCC), and label construction differ, so numeric paper alignment is not claimed.
+- Likely drivers of weak transfer: NSRDB weather vs MERRA-2 weather underlying ninja, Ninja system model (tilt 35°, losses, tracking=0) vs simple TS250 physics target, Site coordinate / timezone alignment differences.
 - **Limitation:** model trained on NSRDB physics targets does not transfer cleanly to ninja’s MERRA-2 PV series.
 
 ## 4. Uncertainty is over-conservative
 
-- Test PICP @ 95% ≈ **0.999** (paper ~0.947).
+- Test PICP @ 95% ≈ **0.999** (over-wide vs a nominal 95% target).
 - Calibration curve shows coverage above the diagonal at all nominal levels.
 - **Limitation:** MC Dropout bands are too wide for decision-making; need calibration (temperature scaling, conformal, better aleatoric head, etc.).
 
@@ -33,7 +33,7 @@
 
 - Physics enters mainly as a scaled prior + soft loss penalties — not a hard structural constraint.
 - No dedicated temporal sequence model (hourly i.i.d.-style MLP on engineered features).
-- Single-panel Watts training vs system-level kW evaluation adds scaling ambiguity vs the paper.
+- Single-panel Watts training vs system-level kW evaluation — do not mix scales when reading tables.
 - Feature set for Case 1 still relies on NSRDB meteorology aligned in time, not ninja-native full feature vectors.
 
 ## Implications for Phase 5 (novelty directions)

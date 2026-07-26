@@ -27,7 +27,12 @@ from src.training.train import load_train_config
 MD = ROOT / "artifacts" / "metrics"
 FIG = ROOT / "data" / "figures"
 PROC = None  # set in main from config
-TOL = 1e-3  # absolute tolerance for table rounding (displayed to ~4 decimals)
+TOL = 1e-3  # absolute tolerance for O(1) table values (displayed to ~4 decimals)
+TOL_REL_SMALL = 0.05  # relative component when |value| < SMALL_SCALE
+SMALL_SCALE = 1e-2  # below this, pure absolute 1e-3 is too coarse for OOM errors
+# Floor for tiny metrics so display-rounded tables (0.0001, 0.000) still match
+# high-precision recalcs, while 7e-5 vs 7e-4 (Δ≈6.5e-4) fails.
+SMALL_ABS_FLOOR = 5e-4
 TOL_LOOSE = 5e-2  # PICP/MPIW MC stochasticity across re-runs
 
 
@@ -63,6 +68,24 @@ def ind_mape(y, p):
     return float(np.mean(np.abs(err[mask] / y[mask])) * 100.0)
 
 
+def ind_smape(y, p):
+    y = np.asarray(y, dtype=np.float64).ravel()
+    p = np.asarray(p, dtype=np.float64).ravel()
+    denom = np.abs(y) + np.abs(p)
+    mask = denom > 1e-12
+    if not mask.any():
+        return float("nan")
+    return float(np.mean(2.0 * np.abs(p - y)[mask] / denom[mask]) * 100.0)
+
+
+def ind_nrmse(y, p):
+    y = np.asarray(y, dtype=np.float64).ravel()
+    p = np.asarray(p, dtype=np.float64).ravel()
+    rmse = float(np.sqrt(np.mean((p - y) ** 2)))
+    mean_abs = float(np.mean(np.abs(y)))
+    return float(rmse / mean_abs * 100.0) if mean_abs > 1e-12 else float("nan")
+
+
 def ind_picp(y, mean, std, z=1.96, scale=1.0):
     y = np.asarray(y, dtype=np.float64).ravel()
     m = np.asarray(mean, dtype=np.float64).ravel()
@@ -82,6 +105,8 @@ def all_point(y, p):
         "rmse": ind_rmse(y, p),
         "r2": ind_r2(y, p),
         "mape": ind_mape(y, p),
+        "smape": ind_smape(y, p),
+        "nrmse": ind_nrmse(y, p),
     }
 
 
@@ -92,7 +117,14 @@ def load_json(path: Path):
         return json.load(f)
 
 
-def close(a, b, tol=TOL):
+def close(a, b, tol=TOL, rtol_small=TOL_REL_SMALL):
+    """Compare metrics with magnitude-aware tolerance.
+
+    O(1) values use absolute ``tol``.
+    Tiny magnitudes with *tight* tol use max(SMALL_ABS_FLOOR, rtol*scale)
+    so display rounding matches while order-of-magnitude mismatches fail.
+    Explicit loose tol (e.g. TOL_LOOSE for MC MPIW) is always honored.
+    """
     if a is None or b is None:
         return False
     try:
@@ -101,6 +133,11 @@ def close(a, b, tol=TOL):
         return False
     if np.isnan(a) and np.isnan(b):
         return True
+    if np.isnan(a) or np.isnan(b):
+        return False
+    scale = max(abs(a), abs(b))
+    if scale < SMALL_SCALE and tol < TOL_LOOSE:
+        return abs(a - b) <= max(SMALL_ABS_FLOOR, rtol_small * scale)
     return abs(a - b) <= tol
 
 
@@ -589,15 +626,20 @@ def audit_markdown_tables(recalculated: dict) -> list[dict]:
             cells = [c.strip() for c in line.strip("|").split("|")]
             if len(cells) < 3:
                 continue
-            metric = cells[0].lower()
-            if metric not in {"mae", "rmse", "r²", "r2", "mape (%)"}:
+            metric = cells[0].lower().replace("²", "2")
+            # Allow "MAE (W)", "RMSE (kW)", "R² (—)", "MAPE (%)"
+            if "smape" in metric or "nrmse" in metric:
                 continue
-            if "r" in metric and ("2" in metric or "²" in metric):
-                mk = "r2"
-            elif "mape" in metric:
+            if "mape" in metric:
                 mk = "mape"
+            elif "r2" in metric or metric.strip().startswith("r²"):
+                mk = "r2"
+            elif metric.startswith("mae"):
+                mk = "mae"
+            elif metric.startswith("rmse"):
+                mk = "rmse"
             else:
-                mk = metric
+                continue
             b = num_from_cell(cells[1])
             a = num_from_cell(cells[2]) if len(cells) > 2 else None
             if section == "nsrdb" and "phase3_pcnn_nsrdb_test" in recalculated:
@@ -648,25 +690,49 @@ def audit_markdown_tables(recalculated: dict) -> list[dict]:
             key = model_map[label]
             rep = abl.get(key, {})
             recalc = recalculated.get(f"phase7_{key}", {}).get("metrics", {})
-            for col, mk in [("R2", "r2"), ("RMSE", "rmse"), ("MAE", "mae"), ("MAPE%", "mape"), ("Ninja R2", "ninja_r2")]:
-                cell = num_from_cell(row.get(col, ""))
+
+            def header_kind(h: str) -> str | None:
+                # Strip units / unicode (R², —) → match on ASCII letters only.
+                alnum = "".join(c.lower() for c in h if c.isascii() and (c.isalnum() or c.isspace()))
+                alnum = " ".join(alnum.split())
+                if alnum.startswith("ninja"):
+                    return "ninja_r2"
+                if alnum.startswith("rmse"):
+                    return "rmse"
+                if alnum.startswith("mae"):
+                    return "mae"
+                if alnum.startswith("mape"):
+                    return "mape"
+                if alnum.startswith("picp"):
+                    return "picp"
+                if alnum.startswith("mpiw"):
+                    return "mpiw"
+                if alnum.startswith("r"):
+                    return "r2"
+                return None
+
+            for h, v in row.items():
+                mk = header_kind(h)
+                if mk is None:
+                    continue
+                cell = num_from_cell(v)
                 if cell is None:
                     continue
                 if mk == "ninja_r2":
                     ref = rep.get("ninja_r2")
+                    tol = 5e-3
+                elif mk in {"picp", "mpiw"}:
+                    ref = rep.get(mk)
+                    tol = TOL_LOOSE
                 else:
                     ref = recalc.get(mk, rep.get(mk))
+                    tol = 5e-2 if mk == "mape" else 5e-3
                 if ref is None:
                     continue
-                ok = close(ref, cell, 5e-3 if mk != "mape" else 5e-2)
-                checks.append(check(f"phase7_md_{key}_{mk}", ok, f"table={cell} source={ref}"))
-            for col, mk in [("PICP", "picp"), ("MPIW", "mpiw")]:
-                cell = num_from_cell(row.get(col, ""))
-                if cell is None or mk not in rep:
-                    continue
-                ok = close(rep[mk], cell, TOL_LOOSE)
+                ok = close(ref, cell, tol)
+                sev = "major" if mk in {"picp", "mpiw"} else "critical"
                 checks.append(
-                    check(f"phase7_md_{key}_{mk}", ok, f"table={cell} report={rep[mk]}", severity="major")
+                    check(f"phase7_md_{key}_{mk}", ok, f"table={cell} source={ref}", severity=sev)
                 )
 
     # Cross-link: Phase7 ninja R2 matches Phase5/6 arrays
@@ -919,12 +985,15 @@ def confidence_scores(checks: list[dict], recalculated: dict) -> dict:
 
 def reviewer_concerns() -> list[str]:
     return [
-        "NSRDB targets are physics-derived (`target_power` ≈ analytical prior); near-perfect R² for residual/gated models is partly by construction (Phase 4). Do not over-claim NSRDB accuracy gains.",
+        "Lead with Ninja multitask transfer; treat NSRDB near-unity R² as a physics-label consistency check only (Phase 4 circular labels).",
         "Full-2019 ninja Case-1 for multitask overlaps early-2019 train hours that saw masked external loss; prefer val-window holdout R² (~0.81) as the cleaner transfer estimate.",
-        "Site coordinates differ slightly from the paper VITCC location (~25 km).",
+        "Site coordinates differ slightly from the paper VITCC location (~25 km). Do not align numeric tables to published paper MAE/R²: our NSRDB MAE is Watts (1× TS250) and Case-1 is kW (10 kW system); the paper’s absolute MAE (e.g. 0.0213) does not specify capacity/unit clearly enough to convert — not reconcilable; never guess 0.0213 kW ↔ 21.3 W.",
         "PICP/MPIW for MC Dropout are stochastic across runs; Phase 7 re-runs can differ at the second decimal — report calibrated PICP with seed/n_mc.",
         "Model D shares weights with C; only UQ post-processing differs — state this clearly in the ablation narrative.",
+        "Feasible fraction = 1.0 is guaranteed by the hard capacity clamp (architecture), not a learned achievement.",
+        "Prefer sMAPE / nRMSE over MAPE for external relative error; MAPE inflates at near-zero irradiance.",
         "Sklearn scaler version skew generates a warning; empirically verified harmless but reviewers may ask for re-serialization.",
+        "Phase 9 λ-sensitivity: λ=0 is an untrained external-head control (Ninja R² negative); prefer λ≈0.25–1.0 for transfer claims.",
     ]
 
 
@@ -996,14 +1065,19 @@ def write_md(payload: dict, path: Path) -> None:
             lines.append(f"| {c['check']} | {'PASS' if c['pass'] else 'FAIL'} | {c['detail']} |")
 
     lines.append("\n### Recalculated headline numbers\n")
-    lines.append("| Experiment | MAE | RMSE | R² | MAPE |")
-    lines.append("|------------|-----|------|----|------|")
+    lines.append(
+        "Absolute MAE/RMSE units: **W** = single-panel NSRDB Watts; **kW** = 10 kW Case-1/Ninja. "
+        "Do not mix columns across unit regimes.\n"
+    )
+    lines.append("| Experiment | Unit | MAE | RMSE | R² | MAPE (%) |")
+    lines.append("|------------|------|-----|------|----|----------|")
     for name, blob in payload["recalculated"].items():
         if "metrics" not in blob:
             continue
         m = blob["metrics"]
+        unit = "kW" if "case1" in name or "ninja" in name else "W"
         lines.append(
-            f"| {name} | {m['mae']:.6g} | {m['rmse']:.6g} | {m['r2']:.6g} | {m['mape']:.6g} |"
+            f"| {name} | {unit} | {m['mae']:.6g} | {m['rmse']:.6g} | {m['r2']:.6g} | {m['mape']:.6g} |"
         )
 
     lines.append("\n## 3. Comparison tables vs recalculated values\n")
@@ -1048,7 +1122,13 @@ def write_md(payload: dict, path: Path) -> None:
     lines.append("## 8. Metric changes after audit\n")
     changes = payload.get("metric_changes", [])
     if not changes:
-        lines.append("No material metric changes. Recalculated values match saved JSON within absolute tolerance 1e−3 (PICP/MPIW 5e−2 for MC stochasticity).\n")
+        lines.append(
+            "No material metric changes. Recalculated values match saved JSON with "
+            "magnitude-aware tolerance: absolute 1e−3 for O(1) metrics; for |value|<1e−2 "
+            "use max(5e−4 floor, 5% relative) so tiny AR/CD MAE cannot pass "
+            "order-of-magnitude mismatches while display-rounded tables still match. "
+            "PICP/MPIW use 5e−2 for MC stochasticity.\n"
+        )
     else:
         lines.append("| Item | Was | Recalc | Notes |")
         lines.append("|------|-----|--------|-------|")

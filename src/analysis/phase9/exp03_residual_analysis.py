@@ -84,12 +84,21 @@ def run() -> dict:
     save_json({"stats": stats_rows, "season": season_stats}, "exp03_residual.json")
 
     s = stats_rows[0]
+    s_cd = stats_rows[1] if len(stats_rows) > 1 else None
+    cd_line = (
+        f"- CD multitask mean |r| ≈ {s_cd['mean_abs_residual_W']:.2e} W "
+        f"(vs AR {s['mean_abs_residual_W']:.2e} W). Multitask can inflate physics-path "
+        f"error in some regimes (see Exp 8 afternoon / medium_ghi RMSE) — a real cost of "
+        f"sharing the encoder with the external head, not identical fidelity."
+        if s_cd is not None
+        else ""
+    )
     text = f"""## Residual analysis
 
 - Residuals on NSRDB are **tiny** (mean |r| ≈ {s['mean_abs_residual_W']:.2e} W, 95th pct ≈ {s['p95_abs_residual_W']:.2e} W) because the target is physics-derived.
 - |r| grows slightly with irradiance and midday hours — corrections matter most when power is large.
 - Monthly and seasonal means are stable; no strong winter/summer bias in the residual branch.
-- CD multitask preserves similarly small physics-path residuals (see CSV).
+{cd_line}
 """
     plain_summary(REPORT_DIR / "exp03_residual_analysis.md", text)
     return {"stats": stats_rows}

@@ -167,24 +167,32 @@ def run_compare(config_path: str | None = None) -> dict:
                 "rmse": _g(baseline_case1, "rmse"),
                 "r2": _g(baseline_case1, "r2"),
                 "mape": _g(baseline_case1, "mape"),
+                "smape": _g(baseline_case1, "smape"),
+                "nrmse": _g(baseline_case1, "nrmse"),
             },
             "ar_pcnn": {
                 "mae": _g(ar_case1, "mae"),
                 "rmse": _g(ar_case1, "rmse"),
                 "r2": _g(ar_case1, "r2"),
                 "mape": _g(ar_case1, "mape"),
+                "smape": _g(ar_case1, "smape"),
+                "nrmse": _g(ar_case1, "nrmse"),
             },
             "ar_pcnn_cd_multitask_external": {
                 "mae": _g(mt, "ninja_full_2019_external_head", "mae"),
                 "rmse": _g(mt, "ninja_full_2019_external_head", "rmse"),
                 "r2": _g(mt, "ninja_full_2019_external_head", "r2"),
                 "mape": _g(mt, "ninja_full_2019_external_head", "mape"),
+                "smape": _g(mt, "ninja_full_2019_external_head", "smape"),
+                "nrmse": _g(mt, "ninja_full_2019_external_head", "nrmse"),
             },
             "ar_pcnn_cd_finetune_external": {
                 "mae": _g(ft, "ninja_full_2019_external_head", "mae"),
                 "rmse": _g(ft, "ninja_full_2019_external_head", "rmse"),
                 "r2": _g(ft, "ninja_full_2019_external_head", "r2"),
                 "mape": _g(ft, "ninja_full_2019_external_head", "mape"),
+                "smape": _g(ft, "ninja_full_2019_external_head", "smape"),
+                "nrmse": _g(ft, "ninja_full_2019_external_head", "nrmse"),
             },
         },
         "ninja_val_holdout": {
@@ -220,41 +228,56 @@ def run_compare(config_path: str | None = None) -> dict:
 
     md = f"""# Phase 6 Comparison — Cross-Domain Learning
 
+**Primary contribution:** multitask external-head transfer to Renewables.ninja (R² ~0.5 → **0.86** full-year; **0.81** val-holdout).
+
 Architecture: AR-PCNN physics path unchanged. Phase 6 changes **training** only
 (multi-task shared encoder + external head, and encoder-frozen fine-tune).
 
-## NSRDB test (physics target, Watts)
+NSRDB rows below are a **physics-fidelity consistency check** (`target_power` is physics-derived). Do not lead a paper with NSRDB R²≈1.0.
+
+## NSRDB test (physics target, Watts) — consistency only
 
 | Metric | PCNN | AR-PCNN | CD Multitask | CD Finetune |
 |--------|------|---------|--------------|-------------|
-| MAE | {fmt(_g(comparison,'nsrdb_test','pcnn','mae'))} | {fmt(_g(comparison,'nsrdb_test','ar_pcnn','mae'))} | {fmt(_g(comparison,'nsrdb_test','ar_pcnn_cd_multitask','mae'))} | {fmt(_g(comparison,'nsrdb_test','ar_pcnn_cd_finetune','mae'))} |
-| RMSE | {fmt(_g(comparison,'nsrdb_test','pcnn','rmse'))} | {fmt(_g(comparison,'nsrdb_test','ar_pcnn','rmse'))} | {fmt(_g(comparison,'nsrdb_test','ar_pcnn_cd_multitask','rmse'))} | {fmt(_g(comparison,'nsrdb_test','ar_pcnn_cd_finetune','rmse'))} |
-| R2 | {fmt(_g(comparison,'nsrdb_test','pcnn','r2'))} | {fmt(_g(comparison,'nsrdb_test','ar_pcnn','r2'))} | {fmt(_g(comparison,'nsrdb_test','ar_pcnn_cd_multitask','r2'))} | {fmt(_g(comparison,'nsrdb_test','ar_pcnn_cd_finetune','r2'))} |
-| MAPE % | {fmt(_g(comparison,'nsrdb_test','pcnn','mape'),3)} | {fmt(_g(comparison,'nsrdb_test','ar_pcnn','mape'),3)} | {fmt(_g(comparison,'nsrdb_test','ar_pcnn_cd_multitask','mape'),3)} | {fmt(_g(comparison,'nsrdb_test','ar_pcnn_cd_finetune','mape'),3)} |
-| Feasible | {fmt(_g(comparison,'nsrdb_test','pcnn','feasible'),3)} | {fmt(_g(comparison,'nsrdb_test','ar_pcnn','feasible'),3)} | {fmt(_g(comparison,'nsrdb_test','ar_pcnn_cd_multitask','feasible'),3)} | {fmt(_g(comparison,'nsrdb_test','ar_pcnn_cd_finetune','feasible'),3)} |
-| Mean alpha | — | {fmt(_g(comparison,'nsrdb_test','ar_pcnn','mean_alpha'),3)} | {fmt(_g(comparison,'nsrdb_test','ar_pcnn_cd_multitask','mean_alpha'),3)} | {fmt(_g(comparison,'nsrdb_test','ar_pcnn_cd_finetune','mean_alpha'),3)} |
+| MAE (W) | {fmt(_g(comparison,'nsrdb_test','pcnn','mae'))} | {fmt(_g(comparison,'nsrdb_test','ar_pcnn','mae'))} | {fmt(_g(comparison,'nsrdb_test','ar_pcnn_cd_multitask','mae'))} | {fmt(_g(comparison,'nsrdb_test','ar_pcnn_cd_finetune','mae'))} |
+| RMSE (W) | {fmt(_g(comparison,'nsrdb_test','pcnn','rmse'))} | {fmt(_g(comparison,'nsrdb_test','ar_pcnn','rmse'))} | {fmt(_g(comparison,'nsrdb_test','ar_pcnn_cd_multitask','rmse'))} | {fmt(_g(comparison,'nsrdb_test','ar_pcnn_cd_finetune','rmse'))} |
+| R² (—) | {fmt(_g(comparison,'nsrdb_test','pcnn','r2'))} | ≈1.0 | ≈1.0 | ≈1.0 |
+| MAPE (%) | {fmt(_g(comparison,'nsrdb_test','pcnn','mape'),3)} | {fmt(_g(comparison,'nsrdb_test','ar_pcnn','mape'),3)} | {fmt(_g(comparison,'nsrdb_test','ar_pcnn_cd_multitask','mape'),3)} | {fmt(_g(comparison,'nsrdb_test','ar_pcnn_cd_finetune','mape'),3)} |
+| Feasible (—) | {fmt(_g(comparison,'nsrdb_test','pcnn','feasible'),3)} | {fmt(_g(comparison,'nsrdb_test','ar_pcnn','feasible'),3)} | {fmt(_g(comparison,'nsrdb_test','ar_pcnn_cd_multitask','feasible'),3)} | {fmt(_g(comparison,'nsrdb_test','ar_pcnn_cd_finetune','feasible'),3)} |
+| Mean alpha (—) | — | {fmt(_g(comparison,'nsrdb_test','ar_pcnn','mean_alpha'),3)} | {fmt(_g(comparison,'nsrdb_test','ar_pcnn_cd_multitask','mean_alpha'),3)} | {fmt(_g(comparison,'nsrdb_test','ar_pcnn_cd_finetune','mean_alpha'),3)} |
 
-## Renewables.ninja full 2019 (10 kW)
+`Feasible = 1.0` is by construction (hard clamp). CD RMSE on NSRDB is slightly worse than AR-PCNN in some regimes — a multitask cost (see Phase 9 Exp 8).
+
+## Renewables.ninja full 2019 (10 kW) — primary result
 
 | Metric | PCNN (phys scaled) | AR-PCNN (phys scaled) | CD Multitask (external head) | CD Finetune (external head) |
 |--------|--------------------|-----------------------|------------------------------|-----------------------------|
-| MAE kW | {fmt(_g(comparison,'ninja_full_2019','pcnn','mae'))} | {fmt(_g(comparison,'ninja_full_2019','ar_pcnn','mae'))} | {fmt(_g(comparison,'ninja_full_2019','ar_pcnn_cd_multitask_external','mae'))} | {fmt(_g(comparison,'ninja_full_2019','ar_pcnn_cd_finetune_external','mae'))} |
-| RMSE kW | {fmt(_g(comparison,'ninja_full_2019','pcnn','rmse'))} | {fmt(_g(comparison,'ninja_full_2019','ar_pcnn','rmse'))} | {fmt(_g(comparison,'ninja_full_2019','ar_pcnn_cd_multitask_external','rmse'))} | {fmt(_g(comparison,'ninja_full_2019','ar_pcnn_cd_finetune_external','rmse'))} |
-| R2 | {fmt(_g(comparison,'ninja_full_2019','pcnn','r2'))} | {fmt(_g(comparison,'ninja_full_2019','ar_pcnn','r2'))} | {fmt(_g(comparison,'ninja_full_2019','ar_pcnn_cd_multitask_external','r2'))} | {fmt(_g(comparison,'ninja_full_2019','ar_pcnn_cd_finetune_external','r2'))} |
+| MAE (kW) | {fmt(_g(comparison,'ninja_full_2019','pcnn','mae'))} | {fmt(_g(comparison,'ninja_full_2019','ar_pcnn','mae'))} | {fmt(_g(comparison,'ninja_full_2019','ar_pcnn_cd_multitask_external','mae'))} | {fmt(_g(comparison,'ninja_full_2019','ar_pcnn_cd_finetune_external','mae'))} |
+| RMSE (kW) | {fmt(_g(comparison,'ninja_full_2019','pcnn','rmse'))} | {fmt(_g(comparison,'ninja_full_2019','ar_pcnn','rmse'))} | {fmt(_g(comparison,'ninja_full_2019','ar_pcnn_cd_multitask_external','rmse'))} | {fmt(_g(comparison,'ninja_full_2019','ar_pcnn_cd_finetune_external','rmse'))} |
+| R² (—) | {fmt(_g(comparison,'ninja_full_2019','pcnn','r2'))} | {fmt(_g(comparison,'ninja_full_2019','ar_pcnn','r2'))} | **{fmt(_g(comparison,'ninja_full_2019','ar_pcnn_cd_multitask_external','r2'))}** | {fmt(_g(comparison,'ninja_full_2019','ar_pcnn_cd_finetune_external','r2'))} |
+| **sMAPE (%)** | {fmt(_g(comparison,'ninja_full_2019','pcnn','smape'),2)} | {fmt(_g(comparison,'ninja_full_2019','ar_pcnn','smape'),2)} | **{fmt(_g(comparison,'ninja_full_2019','ar_pcnn_cd_multitask_external','smape'),2)}** | {fmt(_g(comparison,'ninja_full_2019','ar_pcnn_cd_finetune_external','smape'),2)} |
+| **nRMSE (%)** | {fmt(_g(comparison,'ninja_full_2019','pcnn','nrmse'),2)} | {fmt(_g(comparison,'ninja_full_2019','ar_pcnn','nrmse'),2)} | **{fmt(_g(comparison,'ninja_full_2019','ar_pcnn_cd_multitask_external','nrmse'),2)}** | {fmt(_g(comparison,'ninja_full_2019','ar_pcnn_cd_finetune_external','nrmse'),2)} |
+| MAPE (%) | {fmt(_g(comparison,'ninja_full_2019','pcnn','mape'),2)} | {fmt(_g(comparison,'ninja_full_2019','ar_pcnn','mape'),2)} | {fmt(_g(comparison,'ninja_full_2019','ar_pcnn_cd_multitask_external','mape'),2)} | {fmt(_g(comparison,'ninja_full_2019','ar_pcnn_cd_finetune_external','mape'),2)} |
+
+Standard MAPE is susceptible to extreme inflation during low-irradiance periods due to near-zero denominators; therefore, sMAPE (or nRMSE) is reported to provide a more stable relative error metric across all generation regimes.
+
+**Units:** NSRDB absolute errors are **Watts** (1× TS250). Ninja absolute errors are **kW** on a **10 kW** system (40×250 W). Source-paper absolute MAE figures are **not reconcilable** with ours (capacity/unit unspecified) — no guessed conversion.
 
 ## Ninja holdout inside validation window (2019 hours in val split)
 
-| Strategy | n | R2 | MAE kW |
-|----------|---|----|--------|
-| Multitask | {fmt(_g(comparison,'ninja_val_holdout','multitask','n'),0)} | {fmt(_g(comparison,'ninja_val_holdout','multitask','r2'))} | {fmt(_g(comparison,'ninja_val_holdout','multitask','mae'))} |
+| Strategy | n (h) | R² (—) | MAE (kW) |
+|----------|-------|--------|----------|
+| Multitask | {fmt(_g(comparison,'ninja_val_holdout','multitask','n'),0)} | **{fmt(_g(comparison,'ninja_val_holdout','multitask','r2'))}** | {fmt(_g(comparison,'ninja_val_holdout','multitask','mae'))} |
 | Finetune | {fmt(_g(comparison,'ninja_val_holdout','finetune','n'),0)} | {fmt(_g(comparison,'ninja_val_holdout','finetune','r2'))} | {fmt(_g(comparison,'ninja_val_holdout','finetune','mae'))} |
 
 Note: early-2019 ninja hours overlap the train window; the val-window subset is the cleaner transfer check. Full-2019 numbers match the Phase-5 Case-1 protocol for continuity.
 
-## Uncertainty (nominal 95%)
+**Negative result (keep):** frozen-encoder fine-tune fails (R² negative). Mechanism: external-head training under freeze can trap near a zero-ish clamp regime — see `src/analysis/phase9/train_helpers.py` comments.
 
-| Model | PICP | MPIW |
-|-------|------|------|
+## Uncertainty (nominal 95%) — NSRDB physics path
+
+| Model | PICP (—) | MPIW (W) |
+|-------|----------|----------|
 | PCNN raw MC | {fmt(_g(comparison,'uncertainty','pcnn_raw','picp'),3)} | {fmt(_g(comparison,'uncertainty','pcnn_raw','mpiw'),2)} |
 | AR-PCNN calibrated | {fmt(_g(comparison,'uncertainty','ar_pcnn_calibrated','picp'),3)} | {fmt(_g(comparison,'uncertainty','ar_pcnn_calibrated','mpiw'),2)} |
 | CD Multitask calibrated | {fmt(_g(comparison,'uncertainty','cd_multitask_calibrated','picp'),3)} | {fmt(_g(comparison,'uncertainty','cd_multitask_calibrated','mpiw'),2)} |

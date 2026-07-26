@@ -294,10 +294,17 @@ def run_training(config_path: str | None = None) -> dict:
         "target_unit": cfg["train"].get("target_unit", "W"),
         "val": val_best,
         "test": test_stats,
-        "paper_nsrdb_reference": {"mae": 0.0213, "rmse": 0.0347, "r2": 0.9865},
+        "paper_metric_alignment": "not_reconcilable",
+        "target_scale": {
+            "nsrdb": "single TS250 panel Watts (p_rated_w=250)",
+            "case1_ninja": "10 kW system = 40 × 250 W panels (electricity in kW)",
+        },
         "note": (
-            "Paper metrics appear reported near kW-scale for system-level Case studies; "
-            "this baseline uses a single TS250 panel in the configured target_unit."
+            "Do not align our NSRDB MAE/RMSE to published paper MAE figures (e.g. 0.0213). "
+            "Our NSRDB target is single-panel Watts; Case-1/Ninja is a 10 kW system in kW. "
+            "The source paper does not specify system capacity / unit for its reported MAE in a "
+            "way that permits safe conversion — precluding unit reconciliation. "
+            "Report our protocol metrics only; never present a guessed W↔kW conversion as fact."
         ),
     }
 

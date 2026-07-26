@@ -37,7 +37,7 @@ type phase7_validation.md
 python -m src.analysis.phase8_audit
 ```
 
-Expect: `Ready: READY with caveats  173/173 passed`
+Expect: `Ready: READY with caveats  178/178 passed`
 
 ### 3. Recalculate NSRDB R² / MAE from saved arrays
 
@@ -155,26 +155,34 @@ print(pd.read_csv('artifacts/phase9/csv/exp04_multi_seed_summary.csv').to_string
 
 ## How to interpret the numbers
 
-### A. NSRDB metrics (physics panel, Watts)
+### A. NSRDB metrics (physics panel, **Watts**) — consistency check only
+
+Target: `target_power` ≈ `P_bounded` for **one** TS250 panel (`p_rated_w = 250`). Absolute errors are **W**, not kW.
 
 | Metric | Good look | Your typical values | Meaning |
 |--------|-----------|---------------------|---------|
-| **R²** | close to 1 | PCNN ~0.9976; AR/CD ≈1.0 | Fit quality. **Do not write “R²=1.0000”** — use ≈1.0 and show MAE. |
-| **MAE** | smaller better | PCNN ~2.3 W; AR ~10⁻⁴ W; CD ~10⁻⁴ W | Average absolute error in Watts |
-| **RMSE** | smaller better | PCNN ~3.8 W | Penalizes large errors more |
-| **Feasible** | 1.0 | 1.0 | Predictions stay in [0, 1.1×rated] |
+| **R² (—)** | close to 1 | PCNN ~0.9976; AR/CD ≈1.0 | Fit to physics-derived labels. **Not** a forecasting win — use ≈1.0 + MAE. |
+| **MAE (W)** | smaller better | PCNN ~2.3 W; AR ~10⁻⁴ W; CD ~10⁻⁴ W | Average absolute error in Watts |
+| **RMSE (W)** | smaller better | PCNN ~3.8 W; CD can be higher than AR in some regimes | Multitask cost possible |
+| **Feasible (—)** | 1.0 | 1.0 | **By clamp** — architectural, not learned |
 
-**Caveat:** NSRDB training labels are built from the physics formula. Near-perfect R² for residual models is **partly by design** (Phase 4). Do not claim “we solved solar forecasting” from NSRDB alone.
+**Caveat:** NSRDB training labels are built from the physics formula. Near-perfect R² for residual models is **by design** (Phase 4). Do not claim “we solved solar forecasting” from NSRDB alone. Do **not** convert source-paper MAE≈0.0213 into Watts/kW — capacity/unit is unspecified → **not reconcilable**.
 
-### B. Ninja metrics (external 10 kW system)
+### B. Ninja metrics (external **10 kW** system) — primary claim
+
+Target: Renewables.ninja `electricity` for **40 × 250 W = 10 kW**. Absolute errors are **kW**.
 
 | Metric | PCNN | AR-PCNN | CD Multitask | Meaning |
 |--------|------|---------|--------------|---------|
-| Full-2019 R² | ~0.54 | ~0.49 | **~0.86** | Same Case-1 protocol |
-| Val-holdout R² | — | — | **~0.81** | **Cleaner** transfer estimate (prefer this in paper) |
+| Full-2019 R² (—) | ~0.54 | ~0.49 | **~0.86** | Same Case-1 protocol |
+| Val-holdout R² (—) | — | — | **~0.81** | **Cleaner** transfer estimate (prefer this in paper) |
 | MAE (kW) | ~0.87 | ~0.91 | **~0.50** | Lower is better |
+| **sMAPE (%)** | ~133.5 | ~133.1 | **~108.2** | Preferred relative error (bounded ≤200%) |
+| **nRMSE (%)** | ~94.5 | ~99.3 | **~51.4** | RMSE / mean(|y|) × 100 |
 
-**Interpretation:** Architecture tricks (gate alone) did **not** fix domain shift. **Multi-task learning** with ninja labels did.
+**Interpretation:** Architecture tricks (gate alone) did **not** fix domain shift. **Multi-task learning** with ninja labels did. Do **not** compare these numbers to published paper Case-1 tables (unit/protocol mismatch).
+
+Standard MAPE is susceptible to extreme inflation during low-irradiance periods due to near-zero denominators; therefore, sMAPE (or nRMSE) is reported to provide a more stable relative error metric across all generation regimes. (Raw Case-1 MAPE can read ~170% even when R²≈0.5 — that is the pathology, not the model.)
 
 ### C. Uncertainty (PICP / MPIW)
 
@@ -210,18 +218,24 @@ From `exp02_gate_summary.csv`:
 
 Open `exp04_multi_seed_runs.csv` **and** `exp04_multi_seed_summary.csv`.
 
+**Current runs (reconciled):** seeds 42, 123, 456, 999, 2026 all succeed on Ninja  
+(R² ≈ **0.86–0.90**; mean ± std ≈ **0.877 ± 0.014**). Seed **456 is not a failure** in the current CSV.
+
 **How to read:**
 
-1. Look at **each seed’s Ninja R²** in the runs CSV first.
-2. If one seed is ~0.86–0.90 and another is **negative**, the mean±std will look terrible — that is an **outlier run**, not “the model is unstable for all seeds.”
-3. Prefer reporting: *“4 of 5 seeds Ninja R² ≈ 0.86–0.90; one seed failed (R² negative) — investigate that run.”*
+1. Check **each seed’s Ninja R²** in the runs CSV first.
+2. If a future re-run produces a negative R² outlier, say so explicitly — do not trust mean±std alone.
+3. Do not confuse the **frozen fine-tune** failure (R² ≈ −0.51) with a multi-seed failure.
 
-Example (your current file): seeds 42/123/999/2026 succeed (~0.86–0.90); seed **456** shows Ninja R² ≈ **−0.51** (failure outlier). Mean±std alone is misleading until you exclude or explain that seed.
+### G. Feature importance (Exp 6)
 
-### G. Noise / regimes (Phase 9)
+- **Physics-path AR** permutation ΔMAE is noise-scale (~10⁻⁶ W) because residuals are already ~10⁻⁴ W — **do not** narrate “top drivers” from that branch.
+- **External CD head** shows real signal: GHI / DNI / Solar Zenith dominate — use that for interpretation.
+
+### H. Noise / regimes (Phase 9)
 
 - If **20% GHI noise** drops PCNN R² a lot but AR/CD barely move → physics prior helps on this label. Remember: still NSRDB physics target.
-- Regime table: PCNN hurts most at **high GHI / afternoon / clear**; AR stays flat ~10⁻⁴ W MAE.
+- Regime table: PCNN hurts most at **high GHI / afternoon / clear**; AR stays flat ~10⁻⁴ W MAE; CD can show higher RMSE in afternoon / medium_ghi (multitask cost).
 
 ---
 
@@ -229,12 +243,14 @@ Example (your current file): seeds 42/123/999/2026 succeed (~0.86–0.90); seed 
 
 Tick these yourself:
 
-- [ ] Phase 8 audit: **173/173 passed**
-- [ ] Ninja multitask full R² ≈ **0.86**, val-holdout ≈ **0.81**
-- [ ] NSRDB physics MAE ≪ 1 W for AR/CD; feasible = 1.0
+- [ ] Phase 8 audit: **178/178 passed**
+- [ ] Headline is **Ninja multitask** full R² ≈ **0.86**, val-holdout ≈ **0.81**
+- [ ] NSRDB framed as physics-fidelity consistency (not a forecasting claim)
 - [ ] Calibrated PICP ≈ **0.94–0.96** (not 0.999 raw PCNN)
 - [ ] Ablation: only **E** improves Ninja; **D** fixes UQ
-- [ ] You cite caveats: physics labels + prefer val-holdout
+- [ ] No fabricated λ-sweep claims unless CSV has the full grid
+- [ ] Multi-seed narrative matches `exp04_multi_seed_runs.csv`
+- [ ] No unaligned paper MAE/R² reference numbers
 
 ---
 

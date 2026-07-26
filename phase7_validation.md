@@ -30,8 +30,10 @@ Passed **11/11** checks.
 
 ## 2. Ablation study
 
-| Model | R2 | RMSE | MAE | MAPE% | PICP | MPIW | Feasible | Ninja R2 |
-|-------|----|------|-----|-------|------|------|----------|----------|
+NSRDB columns are **single-panel Watts** (`target_power`, `p_rated_w=250`). **Ninja R²** is dimensionless on the **10 kW** Case-1 series. MPIW is on the NSRDB physics path (**W**).
+
+| Model | R² (—) | RMSE (W) | MAE (W) | MAPE (%) | PICP (—) | MPIW (W) | Feasible (—) | Ninja R² (—) |
+|-------|--------|----------|---------|----------|----------|----------|--------------|--------------|
 | A Original PCNN | 0.9976 | 3.7612 | 2.2947 | 10.452 | 0.996 | 45.72 | 1.000 | 0.5398 |
 | B Residual only | 1.0000 | 0.0000 | 0.0000 | 0.000 | 0.980 | 0.00 | 1.000 | 0.4921 |
 | C Residual + Gate | 1.0000 | 0.0001 | 0.0001 | 0.000 | 0.683 | 0.00 | 1.000 | 0.4921 |
@@ -87,15 +89,19 @@ they are best interpreted as cross-domain effect sizes rather than paired NSRDB 
 
 ## 7. Limitations & threats to validity
 
-- NSRDB labels remain physics-derived; high R² partly reflects target construction.
+- **Primary claim is Ninja multitask transfer**; NSRDB near-unity R² is a physics-label consistency check, not a forecasting win.
 - Ninja full-2019 overlaps early-2019 train hours for multi-task; val-holdout (~0.81 R²) is the cleaner transfer estimate.
-- Site coordinates differ slightly from the paper’s VITCC point.
+- Site coordinates differ slightly from the paper’s VITCC point (~25 km) — disclose; do not claim numeric paper-table alignment.
+- Source-paper absolute MAE (e.g. 0.0213 in their tables) is **not reconcilable** with our W / kW protocol (capacity/unit unspecified) — do not guess a conversion.
+- `Feasible=1.0` is by hard clamp (architecture), not learned.
 - Frozen fine-tune (Phase 6 Strategy B) failed; not included as a successful ablation arm.
-- MC sample counts in Phase 7 ablations may be lower than Phase 5/6 paper runs for runtime; trends are stable.
+- MC sample counts in Phase 7 ablations may be lower than Phase 5/6 runs for runtime; trends are stable.
+- Full `lambda_external` sensitivity is deferred until the Phase 9 CSV contains the complete grid.
+- Standard MAPE is susceptible to extreme inflation during low-irradiance periods due to near-zero denominators; therefore, sMAPE (or nRMSE) is reported for external relative error.
 
 ## 8. Future work
 
 - Real metered PV targets if available.
 - Stronger OOD years / sites for external validation.
 - Joint conformal calibration on the external head.
-- Sensitivity analysis on `lambda_external`.
+- Complete `lambda_external` sweep before claiming λ-sensitivity results.

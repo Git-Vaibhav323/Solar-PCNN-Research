@@ -1,6 +1,6 @@
 # Phase 9 — Publication Enhancement & Advanced Validation
 
-*Generated: 2026-07-24 14:24*
+*Generated: 2026-07-26 00:18*
 
 Architecture frozen (Phases 3–8). All new experiments write to `artifacts/phase9/` and `data/figures/phase9/`.
 
@@ -11,10 +11,10 @@ Architecture frozen (Phases 3–8). All new experiments write to `artifacts/phas
 ## Hyperparameter sensitivity (lambda_external)
 
 - Swept λ ∈ [0.0, 0.05, 0.1, 0.25, 0.5, 1.0] with frozen architecture; each run warm-starts from Phase-5 AR-PCNN.
-- **Physics fidelity:** NSRDB R² stays ≈1 across λ; lowest NSRDB MAE at λ=1.0 (MAE=0.0002545 W).
-- **Cross-domain:** Ninja R² peaks at λ=1.0 (R²=0.8639).
-- **Trade-off:** Higher λ pulls the shared encoder toward ninja labels; very low λ under-trains the external head; λ≈0.25–1.0 balances physics MAE and ninja R² in this sweep.
-- **UQ:** PICP remains near 0.95 after conformal scaling for all trained λ values.
+- **Physics fidelity:** NSRDB R² stays ≈1 across λ; lowest NSRDB MAE at λ=0.0 (MAE=8.00633e-06 W) — expected when the external loss is off.
+- **Cross-domain:** Ninja R² peaks at λ=0.25 (R²=0.8710); λ∈{0.05…1.0} all ≈0.86–0.87. **λ=0 → Ninja R²≈−0.51** (external head never trained — control, not a seed failure).
+- **Trade-off:** Any λ>0 is enough to learn the ninja head; λ≈0.25–1.0 keeps physics MAE tiny while holding Ninja R². PICP is weakest at very low λ (0.05–0.1) before conformal coverage recovers near λ≥0.25.
+- **UQ:** PICP after conformal scaling is listed per λ in the CSV.
 
 ---
 
@@ -37,7 +37,7 @@ Architecture frozen (Phases 3–8). All new experiments write to `artifacts/phas
 - Residuals on NSRDB are **tiny** (mean |r| ≈ 7.46e-05 W, 95th pct ≈ 7.63e-05 W) because the target is physics-derived.
 - |r| grows slightly with irradiance and midday hours — corrections matter most when power is large.
 - Monthly and seasonal means are stable; no strong winter/summer bias in the residual branch.
-- CD multitask preserves similarly small physics-path residuals (see CSV).
+- CD multitask mean |r| ≈ 2.06e-04 W (vs AR 7.46e-05 W). Multitask can inflate physics-path error in some regimes (see Exp 8 afternoon / medium_ghi RMSE) — a real cost of sharing the encoder with the external head, not identical fidelity.
 
 ---
 
@@ -45,16 +45,19 @@ Architecture frozen (Phases 3–8). All new experiments write to `artifacts/phas
 
 ## Multi-seed stability
 
-Seeds: [42, 123, 456, 999, 2026]
+Seeds evaluated: [42, 123, 456, 999, 2026]
 
-| Metric | mean ± std |
+NSRDB absolute errors are **Watts** (1x TS250). Ninja absolute errors are **kW** (10 kW system).
+
+| Metric | mean +/- std |
 |--------|------------|
-| NSRDB R² | 1.000000 ± 0.000000 |
-| NSRDB MAE (W) | 0.0013368 ± 0.00255904 |
-| Ninja R² | 0.6010 ± 0.6239 |
-| PICP | 0.941 ± 0.028 |
+| NSRDB R2 (-) | 1.000000 +/- 0.000000 |
+| NSRDB MAE (W) | 0.00138945 +/- 0.00252742 |
+| Ninja R2 (-) | 0.8772 +/- 0.0140 |
+| Ninja MAE (kW) | 0.4329 +/- 0.0459 |
+| PICP (-) | 0.944 +/- 0.028 |
 
-Low cross-seed variance indicates reproducible multitask training under the frozen architecture.
+All 5 seeds succeed on Ninja (per-seed R2: 42->0.864, 123->0.899, 456->0.867, 999->0.881, 2026->0.876). Do not confuse this with the separate frozen-finetune failure (R2~-0.51).
 
 ---
 
@@ -72,10 +75,10 @@ Low cross-seed variance indicates reproducible multitask training under the froz
 
 ## Feature importance
 
-- Method: **permutation importance** (ΔMAE on NSRDB test, 5 repeats).
+- Method: **permutation importance** (ΔMAE, 5 repeats). Physics branches use NSRDB targets; `external_cd` uses the multitask external head on the same loader features.
 - SHAP not installed; used permutation importance.
-- Top drivers for AR-PCNN physics path: **Solar Zenith Angle, hour_cos, DNI** — irradiance and solar geometry dominate, as expected for PV.
-- External CD head ranks similar meteorological features; shared encoder concentrates on GHI/DNI/SZA.
+- AR-PCNN **physics-path** permutation ΔMAE is at noise scale (max |ΔMAE|≈2.13e-03 W) because NSRDB residuals are already ~10⁻⁴ W. **Do not interpret ranked features on this branch as real drivers.**
+- **Meaningful signal — external CD head:** top drivers **GHI, DNI, Solar Zenith Angle** (ΔMAE ≈ 0.48, 0.31, 0.30). Irradiance / solar geometry dominate the ninja kW head, as expected.
 
 ---
 
@@ -94,9 +97,10 @@ Low cross-seed variance indicates reproducible multitask training under the froz
 ## Regime-wise error analysis
 
 - **Night / low-GHI:** All models show near-zero absolute error (targets near zero).
-- **High-GHI / afternoon:** Baseline PCNN MAE is largest; AR-PCNN and CD reduce errors to ~10⁻⁴ W scale.
-- **Cloudy vs clear:** Residual models flatten regime gaps; PCNN retains higher afternoon MAE.
-- **Seasonal:** Summer/winter differences are small for AR/CD paths on NSRDB physics target.
+- **High-GHI / afternoon:** Baseline PCNN MAE is largest; AR-PCNN stays ~10⁻⁴ W; CD MAE stays small but RMSE can degrade (encoder shared with ninja head).
+- **Cloudy vs clear:** Residual models flatten regime gaps vs PCNN; multitask is not free on every regime.
+- **Seasonal:** Summer/winter differences remain small in MAE for AR/CD on the NSRDB physics target.
+- **Multitask cost (disclose):** CD physics-path RMSE can be much larger than AR-PCNN in some regimes despite still-small MAE — afternoon RMSE 4.46e-03 vs 7.46e-05; medium_ghi RMSE 5.90e-03 vs 7.46e-05. Do not claim identical physics residuals after multitask.
 
 ---
 
@@ -113,24 +117,26 @@ Low cross-seed variance indicates reproducible multitask training under the froz
 
 ## Key strengths
 
-- Reproducible metrics verified in Phase 8 (173/173 audit checks).
+- **Primary result:** Multitask CD lifts external Ninja R² ~0.5 → ~0.86 (val-holdout ~0.81) with masked-loss integrity checks.
+- Reproducible metrics verified in Phase 8 (independent recalc from arrays).
 - Ablation isolates residual, gate, calibration, and multitask contributions.
-- Multitask CD lifts Ninja R² ~0.5 → ~0.86 with preserved NSRDB physics fidelity.
 - Gate α interpretable; conformal UQ reaches ~95% PICP.
 
 ## Remaining limitations
 
-- NSRDB labels are physics-derived; near-unity R² is partly by construction.
-- Full-2019 ninja evaluation overlaps early-2019 train hours for multitask.
-- λ and seed sweeps require additional GPU time; results stored under `artifacts/phase9/`.
+- NSRDB labels are physics-derived; near-unity R² is a **consistency check**, not a forecasting claim.
+- Full-2019 ninja evaluation overlaps early-2019 train hours for multitask — prefer val-holdout.
+- λ=0 leaves the external head untrained (Ninja R² negative) — expected control; not a multitask failure.
+- Feasibility / hard physics clamps are architectural constraints (true by construction), not learned achievements.
 
 ## Recommendations for publication
 
-1. Report R² to 4–6 decimals or as “≈1.0” with MAE in Watts — avoid literal `R²=1.0000`.
-2. Lead with Ninja val-holdout (~0.81 R²) for cleaner transfer claim.
-3. Include λ sensitivity figure showing physics–ninja trade-off.
-4. Disclose Phase 4 circular-label threat in methods/limitations.
-5. Use figures from `data/figures/phase9/` at 300 DPI.
+1. Lead with Ninja multitask transfer (val-holdout ~0.81); demote NSRDB to physics-fidelity sanity check.
+2. Report NSRDB as “≈1.0” + MAE (W) — avoid literal `R²=1.0000`.
+3. Include the λ-sensitivity figure; note Ninja peaks near λ≈0.25 and λ=0 is an untrained-head control.
+4. Disclose Phase 4 circular-label threat and clamp-by-construction feasibility.
+5. Do not align numeric tables to the source paper without resolved unit/protocol parity.
+6. Use figures from `data/figures/phase9/` at 300 DPI; prefer external-head importance over physics-path noise.
 
 ## Output index
 

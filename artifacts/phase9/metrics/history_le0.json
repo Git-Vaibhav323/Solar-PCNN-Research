@@ -1,0 +1,182 @@
+[
+  {
+    "epoch": 1,
+    "train_loss": 5.494959628603649e-06,
+    "train_physics_loss": 5.494959628603649e-06,
+    "train_external_mse": 12.888260731533835,
+    "val_loss": 1.265841386887224e-10,
+    "val_physics_mae": 7.699633456826073e-06,
+    "val_physics_r2": 0.9999999999999796,
+    "val_ninja_r2": -0.5056304465799808
+  },
+  {
+    "epoch": 2,
+    "train_loss": 1.1704347752824132e-06,
+    "train_physics_loss": 1.1704347752824132e-06,
+    "train_external_mse": 12.576766987096303,
+    "val_loss": 3.3143020802564847e-10,
+    "val_physics_mae": 7.266484566262266e-06,
+    "val_physics_r2": 0.9999999999999817,
+    "val_ninja_r2": -0.5069316050942505
+  },
+  {
+    "epoch": 3,
+    "train_loss": 1.2499654787901673e-08,
+    "train_physics_loss": 1.2499654787901673e-08,
+    "train_external_mse": 12.018307285205722,
+    "val_loss": 1.5985655841972827e-10,
+    "val_physics_mae": 8.102480285988048e-06,
+    "val_physics_r2": 0.9999999999999828,
+    "val_ninja_r2": -0.5066728593639414
+  },
+  {
+    "epoch": 4,
+    "train_loss": 7.236410338885607e-07,
+    "train_physics_loss": 7.236410338885607e-07,
+    "train_external_mse": 12.5980691468151,
+    "val_loss": 3.278354238583409e-09,
+    "val_physics_mae": 3.076566249437995e-05,
+    "val_physics_r2": 0.9999999999996739,
+    "val_ninja_r2": -0.5059569755051234
+  },
+  {
+    "epoch": 5,
+    "train_loss": 2.411196431733524e-06,
+    "train_physics_loss": 2.411196431733524e-06,
+    "train_external_mse": 12.492904419556467,
+    "val_loss": 2.186228294358146e-09,
+    "val_physics_mae": 2.2486068877553995e-05,
+    "val_physics_r2": 0.9999999999998256,
+    "val_ninja_r2": -0.5094496048184483
+  },
+  {
+    "epoch": 6,
+    "train_loss": 5.5679107406599566e-09,
+    "train_physics_loss": 5.5679107406599566e-09,
+    "train_external_mse": 12.544468664035639,
+    "val_loss": 1.5914238140674557e-10,
+    "val_physics_mae": 1.923566422800935e-07,
+    "val_physics_r2": 1.0,
+    "val_ninja_r2": -0.5099360965252071
+  },
+  {
+    "epoch": 7,
+    "train_loss": 6.869861855324138e-09,
+    "train_physics_loss": 6.869861855324138e-09,
+    "train_external_mse": 12.336205252016416,
+    "val_loss": 8.8680436636689e-11,
+    "val_physics_mae": 7.536385458986462e-08,
+    "val_physics_r2": 1.0,
+    "val_ninja_r2": -0.5099112944280864
+  },
+  {
+    "epoch": 8,
+    "train_loss": 9.202830987532794e-09,
+    "train_physics_loss": 9.202830987532794e-09,
+    "train_external_mse": 12.536140239533024,
+    "val_loss": 3.700943863240511e-11,
+    "val_physics_mae": 7.85987879031566e-07,
+    "val_physics_r2": 0.9999999999999997,
+    "val_ninja_r2": -0.5100077973036066
+  },
+  {
+    "epoch": 9,
+    "train_loss": 2.5148518428751526e-09,
+    "train_physics_loss": 2.5148518428751526e-09,
+    "train_external_mse": 12.348195869581822,
+    "val_loss": 1.8721414560021996e-08,
+    "val_physics_mae": 0.00011201802276202253,
+    "val_physics_r2": 0.9999999999967485,
+    "val_ninja_r2": -0.5094853328556517
+  },
+  {
+    "epoch": 10,
+    "train_loss": 3.7993015399420116e-08,
+    "train_physics_loss": 3.7993015399420116e-08,
+    "train_external_mse": 12.683214544757694,
+    "val_loss": 3.898889007607083e-09,
+    "val_physics_mae": 4.4089494572533986e-05,
+    "val_physics_r2": 0.9999999999993293,
+    "val_ninja_r2": -0.5099138677852226
+  },
+  {
+    "epoch": 11,
+    "train_loss": 1.7163519973670605e-09,
+    "train_physics_loss": 1.7163519973670605e-09,
+    "train_external_mse": 12.230028604538765,
+    "val_loss": 1.0531822031035274e-11,
+    "val_physics_mae": 1.9709339704553312e-07,
+    "val_physics_r2": 1.0,
+    "val_ninja_r2": -0.5100317987146794
+  },
+  {
+    "epoch": 12,
+    "train_loss": 3.2082202723178516e-10,
+    "train_physics_loss": 3.2082202723178516e-10,
+    "train_external_mse": 12.757808856211147,
+    "val_loss": 1.8313861669596386e-09,
+    "val_physics_mae": 3.608887069984841e-05,
+    "val_physics_r2": 0.999999999999682,
+    "val_ninja_r2": -0.5100655466443733
+  },
+  {
+    "epoch": 13,
+    "train_loss": 8.119114129574681e-09,
+    "train_physics_loss": 8.119114129574681e-09,
+    "train_external_mse": 12.640662316339254,
+    "val_loss": 7.198409042531465e-12,
+    "val_physics_mae": 2.8865690106269027e-08,
+    "val_physics_r2": 1.0,
+    "val_ninja_r2": -0.5100012524814621
+  },
+  {
+    "epoch": 14,
+    "train_loss": 3.377849014080987e-08,
+    "train_physics_loss": 3.377849014080987e-08,
+    "train_external_mse": 11.995558739826269,
+    "val_loss": 1.9319299127634243e-11,
+    "val_physics_mae": 4.454631625994309e-08,
+    "val_physics_r2": 1.0,
+    "val_ninja_r2": -0.5103147988232037
+  },
+  {
+    "epoch": 15,
+    "train_loss": 9.248936391132658e-11,
+    "train_physics_loss": 9.248936391132658e-11,
+    "train_external_mse": 12.325724069074477,
+    "val_loss": 5.80638345563933e-12,
+    "val_physics_mae": 9.580070527844655e-07,
+    "val_physics_r2": 0.9999999999999996,
+    "val_ninja_r2": -0.5105208720999002
+  },
+  {
+    "epoch": 16,
+    "train_loss": 1.690631067179976e-10,
+    "train_physics_loss": 1.690631067179976e-10,
+    "train_external_mse": 12.573618571662614,
+    "val_loss": 1.273660214247565e-12,
+    "val_physics_mae": 2.1181270021397277e-07,
+    "val_physics_r2": 0.9999999999999999,
+    "val_ninja_r2": -0.5102718026642592
+  },
+  {
+    "epoch": 17,
+    "train_loss": 6.920843293477192e-11,
+    "train_physics_loss": 6.920843293477192e-11,
+    "train_external_mse": 12.703088582206023,
+    "val_loss": 1.1173356318652352e-12,
+    "val_physics_mae": 5.150687192038934e-07,
+    "val_physics_r2": 0.9999999999999998,
+    "val_ninja_r2": -0.5099145562293925
+  },
+  {
+    "epoch": 18,
+    "train_loss": 2.0964679347653518e-10,
+    "train_physics_loss": 2.0964679347653518e-10,
+    "train_external_mse": 12.30701184724651,
+    "val_loss": 4.791414286322621e-12,
+    "val_physics_mae": 1.2169886736487212e-06,
+    "val_physics_r2": 0.9999999999999992,
+    "val_ninja_r2": -0.5103205546092442
+  }
+]

@@ -98,13 +98,28 @@ def run() -> dict:
 
     save_json({k: v.to_dict(orient="records") for k, v in out.items()}, "exp06_feature_importance.json")
 
-    top_feats = out["physics_ar"].head(3)["feature"].tolist()
+    ar_top = out["physics_ar"].head(3)
+    ar_max = float(out["physics_ar"]["importance_mae_increase"].abs().max())
+    ext_top = out["external_cd"].head(3)["feature"].tolist()
+    ext_vals = out["external_cd"].set_index("feature").loc[ext_top, "importance_mae_increase"]
+    # AR physics residuals are ~1e-4 W; permutation ΔMAE at 1e-6 is numerical noise.
+    if ar_max < 1e-2:
+        ar_note = (
+            f"AR-PCNN **physics-path** permutation ΔMAE is at noise scale "
+            f"(max |ΔMAE|≈{ar_max:.2e} W) because NSRDB residuals are already ~10⁻⁴ W. "
+            f"**Do not interpret ranked features on this branch as real drivers.**"
+        )
+    else:
+        ar_note = (
+            f"AR-PCNN physics path top features: "
+            f"**{', '.join(ar_top['feature'].tolist())}**."
+        )
     text = f"""## Feature importance
 
-- Method: **permutation importance** (ΔMAE on NSRDB test, 5 repeats).
+- Method: **permutation importance** (ΔMAE, 5 repeats). Physics branches use NSRDB targets; `external_cd` uses the multitask external head on the same loader features.
 - {shap_note}
-- Top drivers for AR-PCNN physics path: **{', '.join(top_feats)}** — irradiance and solar geometry dominate, as expected for PV.
-- External CD head ranks similar meteorological features; shared encoder concentrates on GHI/DNI/SZA.
+- {ar_note}
+- **Meaningful signal — external CD head:** top drivers **{', '.join(ext_top)}** (ΔMAE ≈ {', '.join(f'{v:.2f}' for v in ext_vals)}). Irradiance / solar geometry dominate the ninja kW head, as expected.
 """
     plain_summary(REPORT_DIR / "exp06_feature_importance.md", text)
     return out
