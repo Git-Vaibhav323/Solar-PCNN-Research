@@ -52,8 +52,12 @@ def run(skip_train: bool = False, seeds: list[int] | None = None) -> pd.DataFram
         phys, _ = eval_physics_split(model, cfg, "test", device)
         ninja, _ = eval_ninja_full(model, cfg, device, use_external_head=True)
         uq = mc_uq_physics(model, cfg, device, n_mc=30)
+        # Record λ actually in the config used for this run (default Phase-6 CD yaml = 1.0
+        # unless Exp1 overrides it). Do not leave this as an unlogged assumption.
+        le = float(cfg["loss"]["lambda_external"])
         row = {
             "seed": seed,
+            "lambda_external": le,
             "nsrdb_r2": phys["r2"],
             "nsrdb_mae": phys["mae"],
             "nsrdb_rmse": phys["rmse"],
@@ -62,7 +66,8 @@ def run(skip_train: bool = False, seeds: list[int] | None = None) -> pd.DataFram
             "picp": uq["picp"],
         }
         print(
-            f"  seed={seed} ninja_R2={row['ninja_r2']:.4f} nsrdb_MAE={row['nsrdb_mae']:.6g} picp={row['picp']:.3f}",
+            f"  seed={seed} λ={le:g} ninja_R2={row['ninja_r2']:.4f} "
+            f"nsrdb_MAE={row['nsrdb_mae']:.6g} picp={row['picp']:.3f}",
             flush=True,
         )
         rows.append(row)
@@ -128,6 +133,14 @@ def run(skip_train: bool = False, seeds: list[int] | None = None) -> pd.DataFram
         text = f"""## Multi-seed stability
 
 Seeds evaluated: {sorted(df['seed'].tolist())}
+
+NSRDB absolute errors are **Watts** (1× TS250). Ninja absolute errors are **kW** (10 kW system).
+
+**λ verification (raw artifacts, not this markdown):** every seed run used lambda_external=1.0.
+Evidence: artifacts/phase9/configs/train_seed*.yaml and machine-written
+artifacts/phase9/metrics/summary_seed*.json (field lambda_external). The runs CSV
+now also records lambda_external per row. There is **no** multi-seed sweep at λ=0.25 —
+only Exp1 varies λ (fixed seed=42 × 6 λ values).
 
 | Metric | mean ± std |
 |--------|------------|

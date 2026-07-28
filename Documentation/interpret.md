@@ -220,6 +220,9 @@ Open `exp04_multi_seed_runs.csv` **and** `exp04_multi_seed_summary.csv`.
 
 **Current runs (reconciled):** seeds 42, 123, 456, 999, 2026 all succeed on Ninja  
 (R² ≈ **0.86–0.90**; mean ± std ≈ **0.877 ± 0.014**). Seed **456 is not a failure** in the current CSV.
+All five used **λ_ext = 1.0** (verified in `artifacts/phase9/configs/train_seed*.yaml`,
+`metrics/summary_seed*.json`, and the `lambda_external` column of `csv/exp04_multi_seed_runs.csv` —
+not from markdown alone). No orphaned multi-seed@λ=0.25 exists; only Exp1 varies λ (seed 42 × 6 values).
 
 **How to read:**
 

@@ -6,23 +6,26 @@ This repository reproduces a Physics-Constrained Neural Network (PCNN) for solar
 
 > **Docs:** all phase reports, `summary.md`, `interpret.md`, and `requirements.txt` live in [`Documentation/`](Documentation/README.md). Root `requirements.txt` installs from that list.
 
-> **One-line result:** Multi-task AR-PCNN lifts Renewables.ninja R² from ~0.5 → **~0.86** (cleaner val-holdout ~**0.81**). NSRDB physics-target scores stay near-perfect as a **consistency check** (labels are physics-derived — not a forecasting claim). Phase 8 audit: **178/178** metric checks pass.
+> **One-line result:** Multi-task AR-PCNN lifts Renewables.ninja R² from ~0.5 → **~0.86** (cleaner val-holdout ~**0.81**). Five-seed mean **0.877 ± 0.014** at λ_ext=1.0. NSRDB physics-target scores stay near-perfect as a **consistency check** (labels are physics-derived — not a forecasting claim). Phase 8 audit: **178/178** metric checks pass.
 
 ---
 
 ## Table of contents
 
 1. [What problem we solve](#1-what-problem-we-solve)
-2. [Big picture architecture](#2-big-picture-architecture)
-3. [Project story (Phases 1–9)](#3-project-story-phases-19)
-4. [Models explained simply](#4-models-explained-simply)
-5. [Results & comparisons](#5-results--comparisons)
-6. [Figures gallery](#6-figures-gallery)
-7. [Repository layout](#7-repository-layout)
-8. [Setup & how to run](#8-setup--how-to-run)
-9. [Data & splits](#9-data--splits)
-10. [Important caveats](#10-important-caveats)
-11. [Documentation index](#11-documentation-index)
+2. [Research enhancements](#2-research-enhancements)
+3. [Big picture architecture](#3-big-picture-architecture)
+4. [Project story (Phases 1–9)](#4-project-story-phases-19)
+5. [Models explained simply](#5-models-explained-simply)
+6. [Results & comparisons](#6-results--comparisons)
+7. [Phase 9 evidence pack](#7-phase-9-evidence-pack)
+8. [Figures gallery](#8-figures-gallery)
+9. [Repository layout](#9-repository-layout)
+10. [Setup & how to run](#10-setup--how-to-run)
+11. [Data & splits](#11-data--splits)
+12. [Important caveats](#12-important-caveats)
+13. [Verify claims from raw artifacts](#13-verify-claims-from-raw-artifacts)
+14. [Documentation index](#14-documentation-index)
 
 ---
 
@@ -40,11 +43,38 @@ We want a model that:
 2. **Uses an analytical PV prior** when it is trustworthy,
 3. **Corrects** that prior with a learned residual + gate,
 4. **Transfers** better to an external PV dataset via multi-task learning,
-5. **Reports uncertainty** with calibrated intervals (PICP ≈ 95%).
+5. **Reports uncertainty** with calibrated intervals (PICP ≈ 95%),
+6. **Documents evidence** so every headline number can be traced to CSV/JSON, not prose alone.
 
 ---
 
-## 2. Big picture architecture
+## 2. Research enhancements
+
+Beyond reproducing the source paper, this repo adds a publication-oriented stack:
+
+| Enhancement | What it does | Where |
+|-------------|--------------|--------|
+| **AR-PCNN** | Adaptive gate α + residual on top of the physics prior | Phase 5 · `src/models/ar_pcnn.py` |
+| **Conformal UQ** | Scales MC Dropout intervals on val → test PICP ≈ 0.95 | `src/models/conformal.py` |
+| **Cross-domain multitask** | Shared encoder + masked external kW head for Renewables.ninja | Phase 6 · `src/models/ar_pcnn_cd.py` |
+| **Ablation A–E** | Isolates residual, gate, calibration, and multitask under one protocol | Phase 7 |
+| **Magnitude-aware audit** | Recalculates MAE/RMSE/R²/sMAPE/nRMSE/PICP/MPIW from saved arrays (178/178) | Phase 8 · `src/analysis/phase8_audit.py` |
+| **λ_external sweep** | Full grid {0, 0.05, 0.1, 0.25, 0.5, 1.0}; Ninja peaks ~λ=0.25 | Phase 9 Exp1 |
+| **5-seed stability** | Seeds 42/123/456/999/2026 → Ninja R² **0.8772 ± 0.0140** at λ=1.0 | Phase 9 Exp4 |
+| **Gate / residual diagnostics** | Diurnal α, residual magnitude vs irradiance | Phase 9 Exp2–3 |
+| **Feature importance** | External-head GHI/DNI/SZA signal vs physics-path noise | Phase 9 Exp6 |
+| **Embeddings / regimes / noise** | PCA of latent space; errors by GHI regime; input-noise stress test | Phase 9 Exp7–9 |
+| **sMAPE / nRMSE** | Prefer over MAPE for near-zero irradiance hours | `src/models/metrics.py` |
+| **Unit-labeled tables** | Every absolute metric tagged `(W)` or `(kW)` | Docs + generators |
+| **Isolated Phase 9 artifacts** | Retrains write only under `artifacts/phase9/` — Phases 3–8 stay frozen | `src/analysis/phase9/` |
+| **Per-run λ logging** | Launch YAML + train-time JSON + runs CSV record `lambda_external` | Exp4 configs / summaries |
+
+**Primary scientific claim:** masked multitask learning lifts Ninja R² ~0.5 → ~0.86 (val-holdout ~0.81).  
+**Not a primary claim:** near-unity NSRDB R² (physics-derived labels).
+
+---
+
+## 3. Big picture architecture
 
 ### End-to-end research pipeline
 
@@ -117,7 +147,7 @@ Architecture is **frozen** from Phase 5/6 onward. Later phases only validate and
 
 ---
 
-## 3. Project story (Phases 1–9)
+## 4. Project story (Phases 1–9)
 
 | Phase | What we did | Outcome |
 |-------|-------------|---------|
@@ -128,12 +158,12 @@ Architecture is **frozen** from Phase 5/6 onward. Later phases only validate and
 | **5** | AR-PCNN + conformal UQ | Gate α≈0.94; PICP≈0.94; Ninja still ~0.49 |
 | **6** | Multi-task + failed fine-tune | **Ninja R²≈0.86**; fine-tune failed (useful negative) |
 | **7** | Ablation A–E, interpretability, stats, publication figures | Each piece isolated |
-| **8** | Independent metric audit from saved arrays | **178/178 PASS** |
-| **9** | Extra analyses (gate, residual, noise, regimes, …) | Evidence pack; see [`Documentation/phase9_report.md`](Documentation/phase9_report.md) |
+| **8** | Independent metric audit from saved arrays | **178/178 PASS** (magnitude-aware tol) |
+| **9** | λ-sweep, 5-seed, gate/residual, importance, regimes, noise | Evidence pack; see [`Documentation/phase9_report.md`](Documentation/phase9_report.md) |
 
 ---
 
-## 4. Models explained simply
+## 5. Models explained simply
 
 ### Baseline PCNN (Phase 3)
 
@@ -160,13 +190,13 @@ Architecture is **frozen** from Phase 5/6 onward. Later phases only validate and
 
 ---
 
-## 5. Results & comparisons
+## 6. Results & comparisons
 
 > **Lead claim:** Ninja multitask transfer (prefer **val-holdout R² ≈ 0.81**; full-2019 ≈ 0.86).  
 > NSRDB R² ≈ 1.0 + MAE (W) is a **physics-fidelity sanity check** only — labels are physics-derived. Do not write literal `R² = 1.0000`.  
 > Model **D** reuses **C** weights (calibration only) — not a separately trained model.
 
-### 5.1 Main comparison table
+### 6.1 Main comparison table
 
 | Model | Ninja R² (—) | NSRDB R² (—) | NSRDB MAE (W) | Feasible† | PICP note |
 |-------|--------------|--------------|---------------|-----------|-----------|
@@ -186,7 +216,7 @@ Architecture is **frozen** from Phase 5/6 onward. Later phases only validate and
 - **Calibration** fixes interval coverage without changing point predictions.
 - **Multi-task** is what lifts Ninja performance — the actual contribution.
 
-### 5.2 Phase 5 — PCNN vs AR-PCNN
+### 6.2 Phase 5 — PCNN vs AR-PCNN
 
 | Metric | PCNN | AR-PCNN |
 |--------|------|---------|
@@ -198,7 +228,7 @@ Architecture is **frozen** from Phase 5/6 onward. Later phases only validate and
 
 Full table: [`Documentation/phase5_comparison.md`](Documentation/phase5_comparison.md)
 
-### 5.3 Phase 6 — Cross-domain
+### 6.3 Phase 6 — Cross-domain
 
 | Metric | PCNN | AR-PCNN | CD Multitask | CD Finetune |
 |--------|------|---------|--------------|-------------|
@@ -208,7 +238,7 @@ Full table: [`Documentation/phase5_comparison.md`](Documentation/phase5_comparis
 
 Full table: [`Documentation/phase6_comparison.md`](Documentation/phase6_comparison.md)
 
-### 5.4 Ablation takeaway (Phase 7)
+### 6.4 Ablation takeaway (Phase 7)
 
 ```text
 Physics reconstruction  →  residual / gate
@@ -218,16 +248,70 @@ Cross-domain Ninja gain →  multi-task external head
 
 Details: [`Documentation/phase7_validation.md`](Documentation/phase7_validation.md)
 
-### 5.5 Audit (Phase 8)
+### 6.5 Audit (Phase 8)
 
 Independent recalculation of MAE / RMSE / R² / MAPE / sMAPE / nRMSE / PICP / MPIW from saved prediction arrays — **no hard-coded table numbers**.
 
+- Magnitude-aware tolerance (abs ~1e−3 for O(1) metrics; relative floor for tiny MAE)
 - Result: **178/178 PASS**, publication readiness **READY with caveats**
 - Report: [`Documentation/phase8_audit.md`](Documentation/phase8_audit.md)
 
+### 6.6 Multi-seed stability (Phase 9 Exp4)
+
+Five independent multitask runs at **λ_external = 1.0** (recorded in launch YAML + train-time JSON + runs CSV):
+
+| Seed | Ninja R² |
+|------|----------|
+| 42 | 0.864 |
+| 123 | 0.899 |
+| 456 | 0.867 |
+| 999 | 0.881 |
+| 2026 | 0.876 |
+| **mean ± std** | **0.8772 ± 0.0140** |
+
+Do **not** confuse this with the frozen fine-tune failure (R² ≈ −0.51). Raw file: `artifacts/phase9/csv/exp04_multi_seed_runs.csv`.
+
+### 6.7 λ_external sensitivity (Phase 9 Exp1)
+
+Single architecture, seed 42, warm-start from Phase-5 AR-PCNN:
+
+| λ_ext | Ninja R² | NSRDB MAE (W) | PICP |
+|-------|----------|---------------|------|
+| 0.0 | −0.51 | ~8e−6 | 0.85 |
+| 0.05 | 0.861 | ~0.001 | 0.71 |
+| 0.10 | 0.871 | ~0.0008 | 0.79 |
+| **0.25** | **0.871** | ~0.0009 | 0.94 |
+| 0.50 | 0.863 | ~0.0006 | 0.95 |
+| 1.0 | 0.863 | ~0.001 | 0.95 |
+
+- **λ=0** = untrained external-head control (expected negative Ninja R²), not a seed failure.
+- Ninja is stable across λ ∈ {0.05…1.0}; peak near **λ≈0.25**.
+- Raw file: `artifacts/phase9/csv/exp01_lambda_sensitivity.csv`.
+
 ---
 
-## 6. Figures gallery
+## 7. Phase 9 evidence pack
+
+Nine experiments under `src/analysis/phase9/` — architecture frozen; outputs isolated in `artifacts/phase9/` and `data/figures/phase9/`.
+
+| Exp | Topic | Key takeaway |
+|-----|-------|--------------|
+| 01 | λ_external sensitivity | Ninja peaks ~0.25; λ=0 is control |
+| 02 | Gate α interpretability | Daylight α≈1; night more variable |
+| 03 | Residual analysis | \|r\| tiny on NSRDB; slight multitask physics-path cost |
+| 04 | Multi-seed stability | 0.877 ± 0.014 Ninja R² @ λ=1.0 |
+| 05 | Runtime / complexity | CD adds ~545 params; negligible GPU overhead |
+| 06 | Feature importance | External head uses GHI/DNI/SZA; physics-path ΔMAE is noise |
+| 07 | Embedding PCA | Latent structure after multitask |
+| 08 | Regime-wise errors | Errors by GHI / time-of-day buckets |
+| 09 | Noise robustness | Stress test under input noise |
+
+Full narrative: [`Documentation/phase9_report.md`](Documentation/phase9_report.md)  
+How to read numbers: [`Documentation/interpret.md`](Documentation/interpret.md)
+
+---
+
+## 8. Figures gallery
 
 ### Architecture & workflow
 
@@ -268,6 +352,7 @@ Independent recalculation of MAE / RMSE / R² / MAPE / sMAPE / nRMSE / PICP / MP
 
 | Figure | Path |
 |--------|------|
+| λ sensitivity | ![lam](data/figures/phase9/exp01_lambda_sensitivity.png) |
 | Feature importance (AR) | ![fi](data/figures/phase9/exp06_importance_physics_ar.png) |
 | Embeddings PCA (after multitask) | ![emb](data/figures/phase9/exp07_pca_after_multitask_CD.png) |
 | Regime MAE | ![rg](data/figures/phase9/exp08_regime_errors.png) |
@@ -276,7 +361,7 @@ Independent recalculation of MAE / RMSE / R² / MAPE / sMAPE / nRMSE / PICP / MP
 
 ---
 
-## 7. Repository layout
+## 9. Repository layout
 
 ```text
 Solar-PCNN-Research/
@@ -298,6 +383,11 @@ Solar-PCNN-Research/
 │   ├── checkpoints/          # *.pt models (frozen Phase 3–6)
 │   ├── metrics/              # JSON / NPZ prediction arrays
 │   └── phase9/               # Phase 9-only outputs (no overwrite of 3–8)
+│       ├── csv/              # Exp tables (λ-sweep, multi-seed, …)
+│       ├── configs/          # Per-run launch YAML (records λ, seed)
+│       ├── metrics/          # Train-time summary JSON
+│       ├── checkpoints/      # Phase-9-only *.pt
+│       └── reports/          # Per-experiment markdown notes
 └── src/
     ├── data/                 # Pipeline
     ├── models/               # PCNN, AR-PCNN, CD, losses, metrics
@@ -312,7 +402,7 @@ Solar-PCNN-Research/
 | Baseline PCNN | `src/models/pcnn.py`, `src/training/train.py` |
 | AR-PCNN | `src/models/ar_pcnn.py`, `src/training/train_ar_pcnn.py` |
 | Cross-domain | `src/models/ar_pcnn_cd.py`, `src/training/train_ar_pcnn_cd.py` |
-| Metrics | `src/models/metrics.py` |
+| Metrics (incl. sMAPE / nRMSE) | `src/models/metrics.py` |
 | Conformal UQ | `src/models/conformal.py` |
 | Phase 7 runner | `src/analysis/phase7_run.py` |
 | Phase 8 audit | `src/analysis/phase8_audit.py` |
@@ -320,7 +410,7 @@ Solar-PCNN-Research/
 
 ---
 
-## 8. Setup & how to run
+## 10. Setup & how to run
 
 ### Environment
 
@@ -372,10 +462,10 @@ python -m src.analysis.phase8_audit
 ### Phase 9 analyses
 
 ```powershell
-# Analysis using frozen checkpoints (fast)
+# Analysis using frozen checkpoints (fast, ~minutes)
 python -m src.analysis.phase9.run_all --skip-train
 
-# Full λ + multi-seed training into artifacts/phase9/ only (slow)
+# Full λ + multi-seed training into artifacts/phase9/ only (~25 min on GPU)
 python -m src.analysis.phase9.run_all
 ```
 
@@ -383,7 +473,7 @@ Configs: `configs/train_pcnn.yaml`, `configs/train_ar_pcnn.yaml`, `configs/train
 
 ---
 
-## 9. Data & splits
+## 11. Data & splits
 
 | Item | Detail |
 |------|--------|
@@ -399,7 +489,7 @@ Integrity (Phase 7/8): no timestamp overlap; 2020 test has **zero** ninja labels
 
 ---
 
-## 10. Important caveats
+## 12. Important caveats
 
 Read these before claiming accuracy wins.
 
@@ -413,10 +503,37 @@ Read these before claiming accuracy wins.
 8. Prefer **sMAPE / nRMSE** over MAPE for external (ninja) relative error — MAPE inflates at near-zero irradiance.
 9. Model D = Model C weights + conformal calibration only.
 10. Put **units in every table row** (`MAE (W)`, `MAE (kW)`, `MPIW (W)`) — do not rely on section headers alone.
+11. Multi-seed λ=1.0 is verified from **YAML + summary JSON** (training day), not from markdown alone — see §13.
 
 ---
 
-## 11. Documentation index
+## 13. Verify claims from raw artifacts
+
+Do not trust summary markdown alone. Quick PowerShell checks from the repo root:
+
+```powershell
+# Multi-seed CSV (λ column + five seeds)
+Get-Content artifacts\phase9\csv\exp04_multi_seed_runs.csv
+
+# Train-time λ (machine-written at run time)
+Get-Content artifacts\phase9\metrics\summary_seed42.json | ConvertFrom-Json |
+  Select-Object seed, lambda_external, tag
+
+# Timestamps: YAML/JSON should predate any CSV cosmetic backfill
+Get-Item artifacts\phase9\metrics\summary_seed*.json,
+         artifacts\phase9\configs\train_seed*.yaml,
+         artifacts\phase9\csv\exp04_multi_seed_runs.csv |
+  Select-Object Name, LastWriteTime
+
+# λ-sweep only (seed 42 × 6 values — not a multi-seed@λ grid)
+Get-Content artifacts\phase9\csv\exp01_lambda_sensitivity.csv
+```
+
+Expected: every `summary_seed*.json` has `lambda_external: 1.0`; Exp1 CSV is the only place λ varies.
+
+---
+
+## 14. Documentation index
 
 All reports live under [`Documentation/`](Documentation/README.md).
 
@@ -450,6 +567,8 @@ This codebase is a research implementation for fair comparison, diagnostics, and
 ```text
 Phases 1–9  COMPLETE  |  Architecture FROZEN  |  Audit 178/178 PASS
 Headline    Multitask CD: Ninja R² ~0.86 (val-holdout ~0.81) — primary claim
+Multi-seed  0.8772 ± 0.0140 @ λ_ext=1.0 (5 seeds; YAML+JSON verified)
 λ-sweep     Complete; Ninja peaks ~λ=0.25 (λ=0 = untrained-head control)
 NSRDB       Physics-fidelity consistency only (labels physics-derived)
+Metrics     sMAPE/nRMSE preferred over MAPE for near-zero hours
 ```
