@@ -4,6 +4,7 @@ Research reports, guides, and the dependency list for **Solar-PCNN-Research**.
 
 | File | Contents |
 |------|----------|
+| [`SRS.md`](SRS.md) | **Software Requirements Specification** — full FR/NFR/acceptance inventory for thesis / formal SRS |
 | [`summary.md`](summary.md) | Living plain-language project status |
 | [`phase4_limitations.md`](phase4_limitations.md) | Why we redesigned after baseline PCNN |
 | [`phase5_comparison.md`](phase5_comparison.md) | PCNN vs AR-PCNN (units: W / kW) |
