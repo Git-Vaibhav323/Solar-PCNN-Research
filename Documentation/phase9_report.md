@@ -1,6 +1,6 @@
 # Phase 9 — Publication Enhancement & Advanced Validation
 
-*Generated: 2026-07-26 23:26*
+*Generated: 2026-10-10 11:05*
 
 Architecture frozen (Phases 3–8). All new experiments write to `artifacts/phase9/` and `data/figures/phase9/`.
 
@@ -11,9 +11,9 @@ Architecture frozen (Phases 3–8). All new experiments write to `artifacts/phas
 ## Hyperparameter sensitivity (lambda_external)
 
 - Swept λ ∈ [0.0, 0.05, 0.1, 0.25, 0.5, 1.0] with frozen architecture; each run warm-starts from Phase-5 AR-PCNN.
-- **Physics fidelity:** NSRDB R² stays ≈1 across λ; lowest NSRDB MAE at λ=0.0 (MAE=8.00633e-06 W) — expected when the external loss is off.
-- **Cross-domain:** Ninja R² peaks at λ=0.25 (R²=0.8710); λ∈{0.05…1.0} all ≈0.86–0.87. **λ=0 → Ninja R²≈−0.51** (external head never trained — control, not a seed failure).
-- **Trade-off:** Any λ>0 is enough to learn the ninja head; λ≈0.25–1.0 keeps physics MAE tiny while holding Ninja R². PICP is weakest at very low λ (0.05–0.1) before conformal coverage recovers near λ≥0.25.
+- **Physics fidelity:** NSRDB R² stays ≈1 across λ; lowest NSRDB MAE at λ=0.0 (MAE=8.00633e-06 W) — expected when external loss is off if that is λ=0.
+- **Cross-domain:** Ninja R² peaks at λ=0.25 (R²=0.8710); λ>0 stays ≈0.86–0.87. **λ=0 → Ninja R²≈-0.51** (external head never trained — control, not a seed failure).
+- **Trade-off:** Any λ>0 trains the ninja head; λ≈0.25–1.0 keeps physics MAE tiny while holding Ninja R². PICP is weaker at very low λ before recovering near λ≥0.25.
 - **UQ:** PICP after conformal scaling is listed per λ in the CSV.
 
 ---
@@ -52,7 +52,7 @@ NSRDB absolute errors are **Watts** (1× TS250). Ninja absolute errors are **kW*
 **λ verification (raw artifacts, not this markdown):** every seed run used lambda_external=1.0.
 Evidence: artifacts/phase9/configs/train_seed*.yaml and machine-written
 artifacts/phase9/metrics/summary_seed*.json (field lambda_external). The runs CSV
-also records lambda_external per row. There is **no** multi-seed sweep at λ=0.25 —
+now also records lambda_external per row. There is **no** multi-seed sweep at λ=0.25 —
 only Exp1 varies λ (fixed seed=42 × 6 λ values).
 
 | Metric | mean ± std |
@@ -61,7 +61,7 @@ only Exp1 varies λ (fixed seed=42 × 6 λ values).
 | NSRDB MAE (W) | 0.00138945 ± 0.00252742 |
 | Ninja R² (—) | 0.8772 ± 0.0140 |
 | Ninja MAE (kW) | 0.4329 ± 0.0459 |
-| PICP (—) | 0.944 ± 0.028 |
+| PICP (—) | 0.944 ± 0.026 |
 
 All 5 seeds succeed on Ninja (per-seed R²: 42→0.864, 123→0.899, 456→0.867, 999→0.881, 2026→0.876). Do not confuse this with the separate frozen-finetune failure (R²≈−0.51).
 

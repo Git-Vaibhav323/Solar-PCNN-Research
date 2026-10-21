@@ -3,21 +3,21 @@
     {
       "model": "PCNN",
       "parameters": 13282,
-      "inference_ms_per_sample": 0.007516578107128746,
+      "inference_ms_per_sample": 0.008862379133410403,
       "training_time_sec_reported": null,
       "gpu_peak_mb": 8.7744140625
     },
     {
       "model": "AR-PCNN",
       "parameters": 13794,
-      "inference_ms_per_sample": 0.010662505131138133,
+      "inference_ms_per_sample": 0.00853599771949302,
       "training_time_sec_reported": null,
       "gpu_peak_mb": 8.7744140625
     },
     {
       "model": "CD-Multitask",
       "parameters": 14339,
-      "inference_ms_per_sample": 0.012631354047895591,
+      "inference_ms_per_sample": 0.01538763911059791,
       "training_time_sec_reported": null,
       "gpu_peak_mb": 8.7744140625
     }
