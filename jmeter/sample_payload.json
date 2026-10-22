@@ -1,0 +1,17 @@
+{
+  "GHI": 650.0,
+  "DNI": 520.0,
+  "DHI": 130.0,
+  "Temperature": 28.5,
+  "Relative Humidity": 45.0,
+  "Pressure": 1013.25,
+  "Surface Albedo": 0.2,
+  "Wind Speed": 3.5,
+  "Wind Direction": 180.0,
+  "Dew Point": 15.2,
+  "Precipitable Water": 1.8,
+  "Solar Zenith Angle": 35.0,
+  "hour_sin": 0.9659258262890682,
+  "hour_cos": 0.25881904510252074,
+  "P_theoretical": 162.5
+}
